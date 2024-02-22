@@ -92,6 +92,11 @@ export default function EditCourseForm({
     update();
   }
 
+  async function deleteThis() {
+    await db.deleteCourse(id!);
+    update();
+  }
+
   return (
     <Modal size={{ base: "full", sm: "md" }} isOpen={isOpen} onClose={onClose}>
       <ModalOverlay />
@@ -139,6 +144,7 @@ export default function EditCourseForm({
                 <DeleteAlertDialog
                   isOpen={dialogIsOpen}
                   onClose={dialogOnClose}
+                  onDelete={deleteThis}
                 />
                 <Button
                   colorScheme="teal"
@@ -163,11 +169,19 @@ export default function EditCourseForm({
 function DeleteAlertDialog({
   isOpen,
   onClose,
+  onDelete,
 }: {
   isOpen: boolean;
   onClose: () => void;
+  onDelete: () => void;
 }) {
   const cancelRef = useRef<HTMLButtonElement | null>(null);
+
+  function onClick() {
+    onClose();
+    onDelete();
+  }
+
   return (
     <AlertDialog
       leastDestructiveRef={cancelRef}
@@ -187,7 +201,7 @@ function DeleteAlertDialog({
               Cancel
             </Button>
             <Button
-              onClick={onClose}
+              onClick={onClick}
               colorScheme="red"
               leftIcon={<DeleteIcon />}
             >

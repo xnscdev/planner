@@ -3,6 +3,7 @@ import {
   addDoc,
   collection,
   CollectionReference,
+  deleteDoc,
   doc,
   getDocs,
   getFirestore,
@@ -18,6 +19,7 @@ interface DatabaseContextData {
   getAllCourses: () => Promise<Map<string, Course>>;
   createCourse: (course: Course) => Promise<void>;
   updateCourse: (id: string, course: Course) => Promise<void>;
+  deleteCourse: (id: string) => Promise<void>;
 }
 
 const DatabaseContext = createContext<DatabaseContextData>(null!);
@@ -66,12 +68,17 @@ export default function DatabaseProvider({
     await updateDoc(doc(courses(), id), course as object);
   }
 
+  async function deleteCourse(id: string) {
+    await deleteDoc(doc(courses(), id));
+  }
+
   const value: DatabaseContextData = {
     courses,
     plans,
     getAllCourses,
     createCourse,
     updateCourse,
+    deleteCourse,
   };
 
   return (
