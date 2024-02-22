@@ -1,9 +1,12 @@
 import { createContext, ReactNode, useContext } from "react";
 import {
+  addDoc,
   collection,
   CollectionReference,
+  doc,
   getDocs,
   getFirestore,
+  updateDoc,
 } from "firebase/firestore";
 import { useAuth } from "./AuthProvider.tsx";
 import Course from "../models/Course.tsx";
@@ -12,7 +15,9 @@ import Plan from "../models/Plan.tsx";
 interface DatabaseContextData {
   courses: () => CollectionReference<Course>;
   plans: () => CollectionReference<Plan>;
-  getAllCourses: () => Promise<(Course & { id: string })[]>;
+  getAllCourses: () => Promise<Map<string, Course>>;
+  createCourse: (course: Course) => Promise<void>;
+  updateCourse: (id: string, course: Course) => Promise<void>;
 }
 
 const DatabaseContext = createContext<DatabaseContextData>(null!);
@@ -50,13 +55,23 @@ export default function DatabaseProvider({
 
   async function getAllCourses() {
     const snapshot = await getDocs(courses());
-    return snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
+    return new Map(snapshot.docs.map((doc) => [doc.id, doc.data()]));
+  }
+
+  async function createCourse(course: Course) {
+    await addDoc(courses(), course);
+  }
+
+  async function updateCourse(id: string, course: Course) {
+    await updateDoc(doc(courses(), id), course as object);
   }
 
   const value: DatabaseContextData = {
     courses,
     plans,
     getAllCourses,
+    createCourse,
+    updateCourse,
   };
 
   return (
