@@ -62,7 +62,7 @@ export default function TagInput({
         <Wrap>
           {tags.map((tag) => (
             <WrapItem key={tag}>
-              <Tag colorScheme={randomColor(tag)}>
+              <Tag boxShadow="base" colorScheme={randomColor(tag)}>
                 <TagLabel>{tag}</TagLabel>
                 <TagCloseButton onClick={() => removeTag(tag)} />
               </Tag>

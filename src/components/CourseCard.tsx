@@ -45,15 +45,19 @@ export default function CourseCard({
             </Text>
           </CardBody>
         )}
-        <CardFooter>
-          <Wrap>
-            {course.tags.map((tag) => (
-              <WrapItem key={tag}>
-                <Tag colorScheme={randomColor(tag)}>{tag}</Tag>
-              </WrapItem>
-            ))}
-          </Wrap>
-        </CardFooter>
+        {course.tags.length > 0 && (
+          <CardFooter>
+            <Wrap>
+              {course.tags.map((tag) => (
+                <WrapItem key={tag}>
+                  <Tag boxShadow="base" colorScheme={randomColor(tag)}>
+                    {tag}
+                  </Tag>
+                </WrapItem>
+              ))}
+            </Wrap>
+          </CardFooter>
+        )}
       </Card>
       <EditCourseForm
         id={id}
