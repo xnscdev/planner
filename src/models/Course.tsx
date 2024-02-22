@@ -7,7 +7,6 @@ export interface CourseRequisite {
 }
 
 export default interface Course {
-  subject: string;
   number: string;
   title: string;
   description: string;

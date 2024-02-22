@@ -1,8 +1,9 @@
 import { createContext, ReactNode, useContext } from "react";
 import {
-  CollectionReference,
-  getFirestore,
   collection,
+  CollectionReference,
+  getDocs,
+  getFirestore,
 } from "firebase/firestore";
 import { useAuth } from "./AuthProvider.tsx";
 import Course from "../models/Course.tsx";
@@ -11,6 +12,7 @@ import Plan from "../models/Plan.tsx";
 interface DatabaseContextData {
   courses: () => CollectionReference<Course>;
   plans: () => CollectionReference<Plan>;
+  getAllCourses: () => Promise<(Course & { id: string })[]>;
 }
 
 const DatabaseContext = createContext<DatabaseContextData>(null!);
@@ -46,9 +48,15 @@ export default function DatabaseProvider({
     ) as CollectionReference<Plan>;
   }
 
+  async function getAllCourses() {
+    const snapshot = await getDocs(courses());
+    return snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
+  }
+
   const value: DatabaseContextData = {
     courses,
     plans,
+    getAllCourses,
   };
 
   return (

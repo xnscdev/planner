@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { createBrowserRouter, Outlet, RouterProvider } from "react-router-dom";
-import { initializeApp, FirebaseOptions } from "firebase/app";
+import { FirebaseOptions, initializeApp } from "firebase/app";
 import LogInPage from "./pages/LogInPage.tsx";
 import SignUpPage from "./pages/SignUpPage.tsx";
 import ProtectedRoute from "./routes/ProtectedRoute.tsx";
@@ -9,7 +9,7 @@ import DashboardPage from "./pages/DashboardPage.tsx";
 import AuthRoute from "./routes/AuthRoute.tsx";
 import LogOutPage from "./pages/LogOutPage.tsx";
 import Providers from "./providers/Providers.tsx";
-import NavBar from "./NavBar.tsx";
+import NavBar from "./components/NavBar.tsx";
 import CoursesPage from "./pages/CoursesPage.tsx";
 import PlansPage from "./pages/PlansPage.tsx";
 

@@ -1,4 +1,4 @@
-import { useAuth } from "./providers/AuthProvider.tsx";
+import { useAuth } from "../providers/AuthProvider.tsx";
 import {
   Box,
   Flex,
@@ -25,14 +25,14 @@ export default function NavBar() {
   return (
     <header>
       <Box px={8} py={6} borderBottomWidth={2} borderBottomColor="gray.200">
-        <Flex alignItems="center" display={{ base: "none", sm: "flex" }}>
+        <Flex alignItems="center" display={{ base: "none", md: "flex" }}>
           <ChakraLink as={ReactRouterLink} to="/">
             <Heading>Planner</Heading>
           </ChakraLink>
           <Spacer />
           {auth.user ? <LoggedInControls /> : <LoggedOutControls />}
         </Flex>
-        <Flex alignItems="center" display={{ base: "flex", sm: "none" }}>
+        <Flex alignItems="center" display={{ base: "flex", md: "none" }}>
           <ChakraLink as={ReactRouterLink} to="/">
             <Heading>Planner</Heading>
           </ChakraLink>
