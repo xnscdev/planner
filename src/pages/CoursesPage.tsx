@@ -20,6 +20,7 @@ export default function CoursesPage() {
   const [courses, setCourses] = useState(new Map<string, Course>());
 
   function update() {
+    setLoading(true);
     db.getAllCourses().then((courses) => {
       setCourses(courses);
       setLoading(false);

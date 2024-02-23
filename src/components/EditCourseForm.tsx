@@ -13,6 +13,7 @@ import {
   CloseButton,
   FormControl,
   FormErrorMessage,
+  FormHelperText,
   FormLabel,
   HStack,
   IconButton,
@@ -31,24 +32,34 @@ import {
   NumberInputStepper,
   Select,
   Spacer,
+  Tag,
+  TagCloseButton,
+  TagLabel,
   Text,
   Textarea,
   useDisclosure,
   VStack,
+  Wrap,
+  WrapItem,
 } from "@chakra-ui/react";
 import { AddIcon, DeleteIcon, EditIcon } from "@chakra-ui/icons";
 import { z } from "zod";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import TagInput from "./TagInput.tsx";
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Course from "../models/Course.tsx";
 import { useDb } from "../providers/DatabaseProvider.tsx";
+import { randomColor } from "../util/colors.ts";
 
 const EditCourseSchema = z.object({
   number: z.string().min(1, "Course number is required"),
   title: z.string().min(1, "Course title is required"),
   description: z.string(),
+  tags: z.array(
+    z.object({
+      text: z.string(),
+    }),
+  ),
   requisites: z.array(
     z.object({
       courseId: z.string().min(1, "Please select a course"),
@@ -87,7 +98,7 @@ export default function EditCourseForm({
     onOpen: dialogOnOpen,
     onClose: dialogOnClose,
   } = useDisclosure();
-  const [tags, setTags] = useState<string[]>([]);
+  const [tag, setTag] = useState("");
   const {
     handleSubmit,
     register,
@@ -97,38 +108,46 @@ export default function EditCourseForm({
     formState: { errors },
   } = useForm<EditCourseData>({
     resolver: zodResolver(EditCourseSchema),
-    defaultValues: course,
+    defaultValues: (() => {
+      if (course) {
+        const { tags, ...defaultCourse } = course;
+        return { tags: tags.map((tag) => ({ text: tag })), ...defaultCourse };
+      }
+    })(),
   });
+  const {
+    fields: tagFields,
+    append: tagAppend,
+    replace: tagReplace,
+    remove: tagRemove,
+  } = useFieldArray({ control, name: "tags" });
   const {
     fields: requisiteFields,
     append: requisiteAppend,
     replace: requisiteReplace,
     remove: requisiteRemove,
-  } = useFieldArray({
-    control,
-    name: "requisites",
-  });
+  } = useFieldArray({ control, name: "requisites" });
 
   useEffect(() => {
     if (course) {
-      setTags(course.tags);
+      tagReplace(course.tags.map((tag) => ({ text: tag })));
       requisiteReplace(course.requisites);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function onSubmit(values: EditCourseData) {
+    const { tags, ...data } = values;
     const newCourse: Course = {
-      ...values,
-      tags,
+      tags: tags.map((tag) => tag.text),
+      ...data,
     };
     if (course) {
       await db.updateCourse(id!, newCourse);
-      reset(newCourse);
+      reset(values);
     } else {
       await db.createCourse(newCourse);
       reset();
-      setTags([]);
     }
     onClose();
     update();
@@ -140,10 +159,32 @@ export default function EditCourseForm({
   }
 
   function resetForm() {
-    reset(course);
     if (course) {
-      setTags(course.tags);
+      const { tags, ...courseFields } = course;
+      reset({ tags: tags.map((tag) => ({ text: tag })), ...courseFields });
     }
+  }
+
+  function onKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
+    if (event.key === "Enter" || event.key === " ") {
+      addTag();
+      event.preventDefault();
+    }
+  }
+
+  function onBlur(event: React.FocusEvent<HTMLInputElement>) {
+    addTag();
+    event.preventDefault();
+  }
+
+  function addTag() {
+    const name = tag.trim();
+    if (!name) {
+      return;
+    }
+
+    tagAppend({ text: name });
+    setTag("");
   }
 
   return (
@@ -176,7 +217,31 @@ export default function EditCourseForm({
                   {errors.description && errors.description.message}
                 </FormErrorMessage>
               </FormControl>
-              <TagInput tags={tags} setTags={setTags} />
+              <FormControl>
+                <FormLabel>Tags</FormLabel>
+                <Input
+                  type="text"
+                  value={tag}
+                  onChange={(event) => setTag(event.target.value)}
+                  onKeyDown={onKeyDown}
+                  onBlur={onBlur}
+                />
+                <FormHelperText>
+                  <Wrap>
+                    {tagFields.map((tag, index) => (
+                      <WrapItem key={tag.id}>
+                        <Tag
+                          boxShadow="base"
+                          colorScheme={randomColor(tag.text)}
+                        >
+                          <TagLabel>{tag.text}</TagLabel>
+                          <TagCloseButton onClick={() => tagRemove(index)} />
+                        </Tag>
+                      </WrapItem>
+                    ))}
+                  </Wrap>
+                </FormHelperText>
+              </FormControl>
               <FormControl>
                 <FormLabel>
                   <HStack spacing={4}>
@@ -291,51 +356,6 @@ export default function EditCourseForm({
                         </VStack>
                       </CardBody>
                     </Card>
-                    // <Flex columnGap={3} key={req.id}>
-                    //   <IconButton
-                    //     onClick={() => requisiteRemove(index)}
-                    //     icon={<CloseIcon />}
-                    //     aria-label="Delete Prerequisite"
-                    //     colorScheme="red"
-                    //     size="sm"
-                    //   />
-                    //   <Box>
-                    //     <HStack spacing={3}>
-                    //       <Select
-                    //         variant="unstyled"
-                    //         {...register(`requisites.${index}.courseId`)}
-                    //       >
-                    //         <option value="">Select course&hellip;</option>
-                    //         {Array.from(courses.entries()).map(
-                    //           ([id, { number }]) => (
-                    //             <option key={id} value={id}>
-                    //               {number}
-                    //             </option>
-                    //           ),
-                    //         )}
-                    //       </Select>
-                    //       <Checkbox {...register(`requisites.${index}.ignore`)}>
-                    //         Ignore
-                    //       </Checkbox>
-                    //     </HStack>
-                    //     {errors.requisites?.[index]?.courseId && (
-                    //       <Text color="red" fontSize="sm">
-                    //         {errors.requisites[index]!.courseId!.message}
-                    //       </Text>
-                    //     )}
-                    //     <HStack mt={3} ml={6} spacing={3}>
-                    //       <Text>Type:</Text>
-                    //       <Select
-                    //         variant="unstyled"
-                    //         {...register(`requisites.${index}.type`)}
-                    //       >
-                    //         <option value="pre">Prerequisite</option>
-                    //         <option value="co">Corequisite</option>
-                    //         <option value="year">Year is</option>
-                    //       </Select>
-                    //     </HStack>
-                    //   </Box>
-                    // </Flex>
                   ))}
                 </VStack>
               </FormControl>
