@@ -15,7 +15,7 @@ const colors = [
   "pink",
 ];
 
-const shades = [100, 200, 300];
+const shades = [100, 200];
 
 export function randomColor(text: string) {
   const hash = hashCode(text);

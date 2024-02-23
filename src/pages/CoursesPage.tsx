@@ -17,7 +17,7 @@ export default function CoursesPage() {
   const db = useDb();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [loading, setLoading] = useState(true);
-  const [courses, setCourses] = useState(new Map<string, Course>());
+  const [courses, setCourses] = useState<(Course & { id: string })[]>([]);
 
   function update() {
     setLoading(true);
@@ -55,9 +55,9 @@ export default function CoursesPage() {
         <Heading size="md" color="gray">
           Loading&hellip;
         </Heading>
-      ) : (
+      ) : courses.length ? (
         <Wrap spacing={6}>
-          {Array.from(courses.entries()).map(([id, course]) => (
+          {courses.map(({ id, ...course }) => (
             <WrapItem key={id}>
               <CourseCard
                 id={id}
@@ -68,6 +68,10 @@ export default function CoursesPage() {
             </WrapItem>
           ))}
         </Wrap>
+      ) : (
+        <Heading size="md">
+          No courses yet! Add a course above to get started.
+        </Heading>
       )}
     </Box>
   );

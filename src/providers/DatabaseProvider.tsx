@@ -5,6 +5,7 @@ import {
   CollectionReference,
   deleteDoc,
   doc,
+  getDoc,
   getDocs,
   getFirestore,
   updateDoc,
@@ -16,10 +17,15 @@ import Plan from "../models/Plan.tsx";
 interface DatabaseContextData {
   courses: () => CollectionReference<Course>;
   plans: () => CollectionReference<Plan>;
-  getAllCourses: () => Promise<Map<string, Course>>;
+  getAllCourses: () => Promise<(Course & { id: string })[]>;
   createCourse: (course: Course) => Promise<void>;
   updateCourse: (id: string, course: Course) => Promise<void>;
   deleteCourse: (id: string) => Promise<void>;
+  getAllPlans: () => Promise<(Plan & { id: string })[]>;
+  getPlan: (id: string) => Promise<Plan | undefined>;
+  createPlan: (plan: Plan) => Promise<void>;
+  updatePlan: (id: string, plan: Plan) => Promise<void>;
+  deletePlan: (id: string) => Promise<void>;
 }
 
 const DatabaseContext = createContext<DatabaseContextData>(null!);
@@ -57,7 +63,7 @@ export default function DatabaseProvider({
 
   async function getAllCourses() {
     const snapshot = await getDocs(courses());
-    return new Map(snapshot.docs.map((doc) => [doc.id, doc.data()]));
+    return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
   }
 
   async function createCourse(course: Course) {
@@ -72,6 +78,28 @@ export default function DatabaseProvider({
     await deleteDoc(doc(courses(), id));
   }
 
+  async function getAllPlans() {
+    const snapshot = await getDocs(plans());
+    return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+  }
+
+  async function getPlan(id: string) {
+    const snapshot = await getDoc(doc(plans(), id));
+    return snapshot.data();
+  }
+
+  async function createPlan(plan: Plan) {
+    await addDoc(plans(), plan);
+  }
+
+  async function updatePlan(id: string, plan: Plan) {
+    await updateDoc(doc(plans(), id), plan as object);
+  }
+
+  async function deletePlan(id: string) {
+    await deleteDoc(doc(plans(), id));
+  }
+
   const value: DatabaseContextData = {
     courses,
     plans,
@@ -79,6 +107,11 @@ export default function DatabaseProvider({
     createCourse,
     updateCourse,
     deleteCourse,
+    getAllPlans,
+    getPlan,
+    createPlan,
+    updatePlan,
+    deletePlan,
   };
 
   return (

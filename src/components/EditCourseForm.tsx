@@ -87,7 +87,7 @@ export default function EditCourseForm({
 }: {
   id?: string;
   course?: Course;
-  courses: Map<string, Course>;
+  courses: (Course & { id: string })[];
   isOpen: boolean;
   onClose: () => void;
   update: () => void;
@@ -274,13 +274,11 @@ export default function EditCourseForm({
                             {...register(`requisites.${index}.courseId`)}
                           >
                             <option value="">Select course&hellip;</option>
-                            {Array.from(courses.entries()).map(
-                              ([id, { number }]) => (
-                                <option key={id} value={id}>
-                                  {number}
-                                </option>
-                              ),
-                            )}
+                            {courses.map(({ id, number }) => (
+                              <option key={id} value={id}>
+                                {number}
+                              </option>
+                            ))}
                           </Select>
                           <Spacer />
                           <CloseButton

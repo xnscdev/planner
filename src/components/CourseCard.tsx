@@ -22,7 +22,7 @@ export default function CourseCard({
 }: {
   id: string;
   course: Course;
-  courses: Map<string, Course>;
+  courses: (Course & { id: string })[];
   update: () => void;
 }) {
   const { isOpen, onOpen, onClose } = useDisclosure();
