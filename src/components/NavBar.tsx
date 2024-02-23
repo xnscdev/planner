@@ -3,6 +3,7 @@ import {
   Box,
   Flex,
   Heading,
+  HStack,
   IconButton,
   Link as ChakraLink,
   Menu,
@@ -51,14 +52,14 @@ export default function NavBar() {
 
 function LoggedOutControls() {
   return (
-    <Flex columnGap={8}>
+    <HStack spacing={8}>
       <ChakraLink as={ReactRouterLink} to="/login">
         Log in
       </ChakraLink>
       <ChakraLink as={ReactRouterLink} to="/signup">
         Sign up
       </ChakraLink>
-    </Flex>
+    </HStack>
   );
 }
 
@@ -74,11 +75,11 @@ function LoggedOutMenu() {
 function LoggedInControls() {
   return (
     <>
-      <Flex columnGap={8}>
+      <HStack spacing={8}>
         <NavLink path="/">Dashboard</NavLink>
         <NavLink path="/courses">Courses</NavLink>
         <NavLink path="/plans">Plans</NavLink>
-      </Flex>
+      </HStack>
       <Spacer />
       <ChakraLink as={ReactRouterLink} to="/logout">
         Log out

@@ -28,6 +28,7 @@ export default function CoursesPage() {
 
   useEffect(() => {
     update();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -43,7 +44,12 @@ export default function CoursesPage() {
       >
         Add Course
       </Button>
-      <EditCourseForm isOpen={isOpen} onClose={onClose} update={update} />
+      <EditCourseForm
+        isOpen={isOpen}
+        courses={courses}
+        onClose={onClose}
+        update={update}
+      />
       {loading ? (
         <Heading size="md" color="gray">
           Loading&hellip;
@@ -52,7 +58,12 @@ export default function CoursesPage() {
         <Wrap spacing={6}>
           {Array.from(courses.entries()).map(([id, course]) => (
             <WrapItem key={id}>
-              <CourseCard id={id} course={course} update={update} />
+              <CourseCard
+                id={id}
+                course={course}
+                courses={courses}
+                update={update}
+              />
             </WrapItem>
           ))}
         </Wrap>

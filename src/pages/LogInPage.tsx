@@ -2,12 +2,12 @@ import { useForm } from "react-hook-form";
 import {
   Button,
   Container,
-  Flex,
   FormControl,
   FormErrorMessage,
   FormLabel,
   Heading,
   Input,
+  VStack,
 } from "@chakra-ui/react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -19,7 +19,7 @@ const LogInSchema = z.object({
   password: z.string().min(6).max(20),
 });
 
-type LogInSchemaType = z.infer<typeof LogInSchema>;
+type LogInData = z.infer<typeof LogInSchema>;
 
 export default function LogInPage() {
   const auth = useAuth();
@@ -28,11 +28,11 @@ export default function LogInPage() {
     handleSubmit,
     register,
     formState: { errors, isSubmitting },
-  } = useForm<LogInSchemaType>({
+  } = useForm<LogInData>({
     resolver: zodResolver(LogInSchema),
   });
 
-  async function onSubmit(values: LogInSchemaType) {
+  async function onSubmit(values: LogInData) {
     try {
       await auth.logIn(values.email, values.password);
     } catch {
@@ -46,7 +46,7 @@ export default function LogInPage() {
         Log in
       </Heading>
       <form onSubmit={handleSubmit(onSubmit)}>
-        <Flex flexDirection="column" rowGap="6">
+        <VStack spacing={6}>
           <FormControl isInvalid={!!errors.email}>
             <FormLabel>Email</FormLabel>
             <Input type="text" {...register("email")} />
@@ -61,7 +61,7 @@ export default function LogInPage() {
               {errors.password && errors.password.message}
             </FormErrorMessage>
           </FormControl>
-        </Flex>
+        </VStack>
         <FormControl isInvalid={!!error}>
           <FormErrorMessage mt={6}>{error}</FormErrorMessage>
         </FormControl>

@@ -2,12 +2,12 @@ import { useForm } from "react-hook-form";
 import {
   Button,
   Container,
-  Flex,
   FormControl,
   FormErrorMessage,
   FormLabel,
   Heading,
   Input,
+  VStack,
 } from "@chakra-ui/react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -31,7 +31,7 @@ const SignUpSchema = z
     }
   });
 
-type SignUpSchemaType = z.infer<typeof SignUpSchema>;
+type SignUpData = z.infer<typeof SignUpSchema>;
 
 export default function SignUpPage() {
   const auth = useAuth();
@@ -40,11 +40,11 @@ export default function SignUpPage() {
     handleSubmit,
     register,
     formState: { errors, isSubmitting },
-  } = useForm<SignUpSchemaType>({
+  } = useForm<SignUpData>({
     resolver: zodResolver(SignUpSchema),
   });
 
-  async function onSubmit(values: SignUpSchemaType) {
+  async function onSubmit(values: SignUpData) {
     try {
       await auth.signUp(values.email, values.password);
     } catch (err) {
@@ -69,7 +69,7 @@ export default function SignUpPage() {
         Sign up
       </Heading>
       <form onSubmit={handleSubmit(onSubmit)}>
-        <Flex flexDirection="column" rowGap="6">
+        <VStack spacing={6}>
           <FormControl isInvalid={!!errors.email}>
             <FormLabel>Email</FormLabel>
             <Input type="text" {...register("email")} />
@@ -91,7 +91,7 @@ export default function SignUpPage() {
               {errors.confirm && errors.confirm.message}
             </FormErrorMessage>
           </FormControl>
-        </Flex>
+        </VStack>
         <FormControl isInvalid={!!error}>
           <FormErrorMessage mt={6}>{error}</FormErrorMessage>
         </FormControl>

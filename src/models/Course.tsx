@@ -1,9 +1,10 @@
 export interface CourseRequisite {
-  id: string;
+  courseId: string;
   type: "pre" | "co" | "year";
   ignore: boolean;
-  year?: number;
-  strict?: boolean;
+  compare: "<=" | "=" | ">=";
+  year: number;
+  strict: boolean;
 }
 
 export default interface Course {

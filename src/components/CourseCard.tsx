@@ -17,10 +17,12 @@ import EditCourseForm from "./EditCourseForm.tsx";
 export default function CourseCard({
   id,
   course,
+  courses,
   update,
 }: {
   id: string;
   course: Course;
+  courses: Map<string, Course>;
   update: () => void;
 }) {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -62,6 +64,7 @@ export default function CourseCard({
       <EditCourseForm
         id={id}
         course={course}
+        courses={courses}
         isOpen={isOpen}
         onClose={onClose}
         update={update}
