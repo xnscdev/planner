@@ -71,22 +71,22 @@ export default function SignUpPage() {
       <form onSubmit={handleSubmit(onSubmit)}>
         <Flex flexDirection="column" rowGap="6">
           <FormControl isInvalid={!!errors.email}>
-            <FormLabel htmlFor="email">Email</FormLabel>
-            <Input id="email" type="text" {...register("email")} />
+            <FormLabel>Email</FormLabel>
+            <Input type="text" {...register("email")} />
             <FormErrorMessage>
               {errors.email && errors.email.message}
             </FormErrorMessage>
           </FormControl>
           <FormControl isInvalid={!!errors.password}>
-            <FormLabel htmlFor="password">Password</FormLabel>
-            <Input id="password" type="password" {...register("password")} />
+            <FormLabel>Password</FormLabel>
+            <Input type="password" {...register("password")} />
             <FormErrorMessage>
               {errors.password && errors.password.message}
             </FormErrorMessage>
           </FormControl>
           <FormControl isInvalid={!!errors.confirm}>
-            <FormLabel htmlFor="confirm">Confirm Password</FormLabel>
-            <Input id="confirm" type="password" {...register("confirm")} />
+            <FormLabel>Confirm Password</FormLabel>
+            <Input type="password" {...register("confirm")} />
             <FormErrorMessage>
               {errors.confirm && errors.confirm.message}
             </FormErrorMessage>

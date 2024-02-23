@@ -16,10 +16,14 @@ import CourseCard from "../components/CourseCard.tsx";
 export default function CoursesPage() {
   const db = useDb();
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const [loading, setLoading] = useState(true);
   const [courses, setCourses] = useState(new Map<string, Course>());
 
   function update() {
-    db.getAllCourses().then((courses) => setCourses(courses));
+    db.getAllCourses().then((courses) => {
+      setCourses(courses);
+      setLoading(false);
+    });
   }
 
   useEffect(() => {
@@ -32,19 +36,27 @@ export default function CoursesPage() {
       <Button
         onClick={onOpen}
         mt={8}
+        mb={12}
         leftIcon={<AddIcon />}
         colorScheme="green"
+        isDisabled={loading}
       >
         Add Course
       </Button>
       <EditCourseForm isOpen={isOpen} onClose={onClose} update={update} />
-      <Wrap mt={12} spacing={6}>
-        {Array.from(courses.entries()).map(([id, course]) => (
-          <WrapItem key={id}>
-            <CourseCard id={id} course={course} update={update} />
-          </WrapItem>
-        ))}
-      </Wrap>
+      {loading ? (
+        <Heading size="md" color="gray">
+          Loading&hellip;
+        </Heading>
+      ) : (
+        <Wrap spacing={6}>
+          {Array.from(courses.entries()).map(([id, course]) => (
+            <WrapItem key={id}>
+              <CourseCard id={id} course={course} update={update} />
+            </WrapItem>
+          ))}
+        </Wrap>
+      )}
     </Box>
   );
 }

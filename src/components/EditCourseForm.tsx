@@ -18,6 +18,7 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
+  Spacer,
   Textarea,
   useDisclosure,
 } from "@chakra-ui/react";
@@ -27,8 +28,9 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import TagInput from "./TagInput.tsx";
 import { useEffect, useRef, useState } from "react";
-import Course from "../models/Course.tsx";
+import Course, { CourseRequisite } from "../models/Course.tsx";
 import { useDb } from "../providers/DatabaseProvider.tsx";
+import RequisiteInput from "./RequisiteInput.tsx";
 
 const EditCourseSchema = z.object({
   number: z.string().min(1),
@@ -58,6 +60,7 @@ export default function EditCourseForm({
     onClose: dialogOnClose,
   } = useDisclosure();
   const [tags, setTags] = useState<string[]>([]);
+  const [requisites, setRequisites] = useState<CourseRequisite[]>([]);
   const {
     handleSubmit,
     register,
@@ -78,7 +81,7 @@ export default function EditCourseForm({
     const newCourse: Course = {
       ...values,
       tags,
-      requisites: [],
+      requisites,
     };
     if (course) {
       await db.updateCourse(id!, newCourse);
@@ -97,6 +100,14 @@ export default function EditCourseForm({
     update();
   }
 
+  function resetForm() {
+    reset(course);
+    if (course) {
+      setTags(course.tags);
+      setRequisites(course.requisites);
+    }
+  }
+
   return (
     <Modal size={{ base: "full", sm: "md" }} isOpen={isOpen} onClose={onClose}>
       <ModalOverlay />
@@ -107,27 +118,31 @@ export default function EditCourseForm({
           <ModalBody>
             <Flex flexDirection="column" rowGap="6">
               <FormControl isInvalid={!!errors.number}>
-                <FormLabel htmlFor="number">Course Number</FormLabel>
-                <Input id="number" type="text" {...register("number")} />
+                <FormLabel>Course Number</FormLabel>
+                <Input type="text" {...register("number")} />
                 <FormErrorMessage>
                   {errors.number && errors.number.message}
                 </FormErrorMessage>
               </FormControl>
               <FormControl isInvalid={!!errors.title}>
-                <FormLabel htmlFor="title">Title</FormLabel>
-                <Input id="title" type="text" {...register("title")} />
+                <FormLabel>Title</FormLabel>
+                <Input type="text" {...register("title")} />
                 <FormErrorMessage>
                   {errors.title && errors.title.message}
                 </FormErrorMessage>
               </FormControl>
               <FormControl isInvalid={!!errors.description}>
-                <FormLabel htmlFor="description">Description</FormLabel>
-                <Textarea id="description" {...register("description")} />
+                <FormLabel>Description</FormLabel>
+                <Textarea {...register("description")} />
                 <FormErrorMessage>
                   {errors.description && errors.description.message}
                 </FormErrorMessage>
               </FormControl>
               <TagInput tags={tags} setTags={setTags} />
+              <RequisiteInput
+                requisites={requisites}
+                setRequisites={setRequisites}
+              />
             </Flex>
           </ModalBody>
           <ModalFooter>
@@ -137,7 +152,6 @@ export default function EditCourseForm({
                   onClick={dialogOnOpen}
                   colorScheme="red"
                   leftIcon={<DeleteIcon />}
-                  mr={3}
                 >
                   Delete
                 </Button>
@@ -146,8 +160,13 @@ export default function EditCourseForm({
                   onClose={dialogOnClose}
                   onDelete={deleteThis}
                 />
+                <Spacer />
+                <Button onClick={resetForm} colorScheme="teal">
+                  Reset
+                </Button>
                 <Button
-                  colorScheme="teal"
+                  ml={3}
+                  colorScheme="blue"
                   leftIcon={<EditIcon />}
                   type="submit"
                 >

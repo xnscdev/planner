@@ -49,9 +49,8 @@ export default function TagInput({
 
   return (
     <FormControl>
-      <FormLabel htmlFor="tags">Tags</FormLabel>
+      <FormLabel>Tags</FormLabel>
       <Input
-        id="tags"
         type="text"
         value={text}
         onChange={(event) => setText(event.target.value)}
