@@ -1,7 +1,11 @@
+export interface CourseRef {
+  courseId: string;
+}
+
 export interface PlanYear {
-  fall: string[];
-  spring: string[];
-  summer: string[];
+  fall: CourseRef[];
+  spring: CourseRef[];
+  summer: CourseRef[];
 }
 
 export default interface Plan {

@@ -105,7 +105,7 @@ export default function EditCourseForm({
     reset,
     watch,
     control,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<EditCourseData>({
     resolver: zodResolver(EditCourseSchema),
     defaultValues: (() => {
@@ -147,7 +147,7 @@ export default function EditCourseForm({
       reset(values);
     } else {
       await db.createCourse(newCourse);
-      reset();
+      reset({ requisites: [] });
     }
     onClose();
     update();
@@ -388,7 +388,12 @@ export default function EditCourseForm({
                 </Button>
               </>
             ) : (
-              <Button colorScheme="green" leftIcon={<AddIcon />} type="submit">
+              <Button
+                colorScheme="green"
+                leftIcon={<AddIcon />}
+                isLoading={isSubmitting}
+                type="submit"
+              >
                 Add
               </Button>
             )}

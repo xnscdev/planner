@@ -10,7 +10,7 @@ export default function PlanCard({ id, plan }: { id: string; plan: Plan }) {
         _hover={{ bgColor: "gray.100" }}
         w={360}
         cursor="pointer"
-        onClick={() => navigate(`/plan?id=${id}`)}
+        onClick={() => navigate(`/plan/${id}`)}
       >
         <CardHeader>
           <Heading size="md">{plan.name}</Heading>

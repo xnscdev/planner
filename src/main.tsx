@@ -12,6 +12,7 @@ import Providers from "./providers/Providers.tsx";
 import NavBar from "./components/NavBar.tsx";
 import CoursesPage from "./pages/CoursesPage.tsx";
 import PlansPage from "./pages/PlansPage.tsx";
+import PlanPage from "./pages/PlanPage.tsx";
 
 const firebaseConfig: FirebaseOptions = {
   apiKey: "AIzaSyCmdG2hPeYNpgiaD0_X5TxNVA-hHNOoi_I",
@@ -55,6 +56,14 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute>
             <PlansPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "/plan/:id",
+        element: (
+          <ProtectedRoute>
+            <PlanPage />
           </ProtectedRoute>
         ),
       },

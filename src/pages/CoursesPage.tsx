@@ -2,6 +2,7 @@ import {
   Box,
   Button,
   Heading,
+  HStack,
   useDisclosure,
   Wrap,
   WrapItem,
@@ -12,12 +13,17 @@ import { useDb } from "../providers/DatabaseProvider.tsx";
 import Course from "../models/Course.tsx";
 import { useEffect, useState } from "react";
 import CourseCard from "../components/CourseCard.tsx";
+import { sortAndFilterCourses } from "../util/course.ts";
+import { SortFilterControl } from "../components/SortFilterControl.tsx";
 
 export default function CoursesPage() {
   const db = useDb();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [loading, setLoading] = useState(true);
   const [courses, setCourses] = useState<(Course & { id: string })[]>([]);
+  const [sortSubject, setSortSubject] = useState("asc");
+  const [sortNumber, setSortNumber] = useState("asc");
+  const [filter, setFilter] = useState("");
 
   function update() {
     setLoading(true);
@@ -32,19 +38,33 @@ export default function CoursesPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const filteredCourses = sortAndFilterCourses(
+    courses,
+    sortSubject,
+    sortNumber,
+    filter,
+  );
   return (
     <Box p={10}>
       <Heading size="lg">Manage Courses</Heading>
-      <Button
-        onClick={onOpen}
-        mt={8}
-        mb={12}
-        leftIcon={<AddIcon />}
-        colorScheme="green"
-        isDisabled={loading}
-      >
-        Add Course
-      </Button>
+      <HStack mt={8} mb={12} spacing={4} wrap="wrap">
+        <Button
+          onClick={onOpen}
+          leftIcon={<AddIcon />}
+          colorScheme="green"
+          isDisabled={loading}
+        >
+          Add Course
+        </Button>
+        <SortFilterControl
+          sortSubject={sortSubject}
+          setSortSubject={setSortSubject}
+          sortNumber={sortNumber}
+          setSortNumber={setSortNumber}
+          filter={filter}
+          setFilter={setFilter}
+        />
+      </HStack>
       <EditCourseForm
         isOpen={isOpen}
         courses={courses}
@@ -55,9 +75,9 @@ export default function CoursesPage() {
         <Heading size="md" color="gray">
           Loading&hellip;
         </Heading>
-      ) : courses.length ? (
+      ) : filteredCourses.length ? (
         <Wrap spacing={6}>
-          {courses.map(({ id, ...course }) => (
+          {filteredCourses.map(({ id, ...course }) => (
             <WrapItem key={id}>
               <CourseCard
                 id={id}
@@ -68,6 +88,8 @@ export default function CoursesPage() {
             </WrapItem>
           ))}
         </Wrap>
+      ) : courses.length ? (
+        <Heading size="md">No courses matched your search.</Heading>
       ) : (
         <Heading size="md">
           No courses yet! Add a course above to get started.

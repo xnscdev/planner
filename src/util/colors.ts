@@ -1,4 +1,5 @@
 import { murmur3 } from "murmurhash-js";
+import { getSubject } from "./course.ts";
 
 const seed = 42;
 
@@ -15,7 +16,7 @@ const colors = [
   "pink",
 ];
 
-const shades = [100, 200];
+const shades = [100, 200, 300];
 
 export function randomColor(text: string) {
   const hash = hashCode(text);
@@ -23,8 +24,7 @@ export function randomColor(text: string) {
 }
 
 export function randomCourseColor(number: string) {
-  const match = number.match(/^[a-zA-Z]+/);
-  const str = match ? match[0] : "";
+  const str = getSubject(number);
   const hash = hashCode(str);
   const color = colors[hash % colors.length];
   const shade = shades[hash % shades.length];
