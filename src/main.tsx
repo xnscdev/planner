@@ -13,6 +13,7 @@ import NavBar from "./components/NavBar.tsx";
 import CoursesPage from "./pages/CoursesPage.tsx";
 import PlansPage from "./pages/PlansPage.tsx";
 import PlanPage from "./pages/PlanPage.tsx";
+import { Box, Flex } from "@chakra-ui/react";
 
 const firebaseConfig: FirebaseOptions = {
   apiKey: "AIzaSyCmdG2hPeYNpgiaD0_X5TxNVA-hHNOoi_I",
@@ -29,10 +30,12 @@ initializeApp(firebaseConfig);
 const router = createBrowserRouter([
   {
     element: (
-      <>
+      <Flex h="100vh" flexDir="column" align="stretch">
         <NavBar />
-        <Outlet />
-      </>
+        <Box flexGrow={1} flexShrink={1} flexBasis="auto" overflowY="auto">
+          <Outlet />
+        </Box>
+      </Flex>
     ),
     children: [
       {

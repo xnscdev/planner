@@ -6,8 +6,8 @@ export function getSubject(number: string) {
 }
 
 export function getNumber(number: string) {
-  const match = number.match(/[0-9]+/);
-  return match ? +match[0] : 0;
+  const match = number.match(/[0-9]+.*/);
+  return match ? match[0] : "";
 }
 
 export function filterCourse(filter: string, course: Course) {
@@ -37,7 +37,8 @@ export function sortCourses(
 
   const numberA = getNumber(a.number);
   const numberB = getNumber(b.number);
-  return sortNumber === "dsc" ? numberB - numberA : numberA - numberB;
+  const numberCompare = numberA.localeCompare(numberB);
+  return sortNumber === "dsc" ? -numberCompare : numberCompare;
 }
 
 export function sortAndFilterCourses(

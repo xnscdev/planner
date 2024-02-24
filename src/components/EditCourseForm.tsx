@@ -1,10 +1,4 @@
 import {
-  AlertDialog,
-  AlertDialogBody,
-  AlertDialogContent,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogOverlay,
   Box,
   Button,
   Card,
@@ -46,10 +40,11 @@ import { AddIcon, DeleteIcon, EditIcon } from "@chakra-ui/icons";
 import { z } from "zod";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useState } from "react";
 import Course from "../models/Course.tsx";
 import { useDb } from "../providers/DatabaseProvider.tsx";
 import { randomColor } from "../util/colors.ts";
+import DeleteAlertDialog from "./DeleteAlertDialog.tsx";
 
 const EditCourseSchema = z.object({
   number: z.string().min(1, "Course number is required"),
@@ -112,29 +107,21 @@ export default function EditCourseForm({
       if (course) {
         const { tags, ...defaultCourse } = course;
         return { tags: tags.map((tag) => ({ text: tag })), ...defaultCourse };
+      } else {
+        return { tags: [], requisites: [] };
       }
     })(),
   });
   const {
     fields: tagFields,
     append: tagAppend,
-    replace: tagReplace,
     remove: tagRemove,
   } = useFieldArray({ control, name: "tags" });
   const {
     fields: requisiteFields,
     append: requisiteAppend,
-    replace: requisiteReplace,
     remove: requisiteRemove,
   } = useFieldArray({ control, name: "requisites" });
-
-  useEffect(() => {
-    if (course) {
-      tagReplace(course.tags.map((tag) => ({ text: tag })));
-      requisiteReplace(course.requisites);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   async function onSubmit(values: EditCourseData) {
     const { tags, ...data } = values;
@@ -147,7 +134,7 @@ export default function EditCourseForm({
       reset(values);
     } else {
       await db.createCourse(newCourse);
-      reset({ requisites: [] });
+      reset();
     }
     onClose();
     update();
@@ -274,11 +261,15 @@ export default function EditCourseForm({
                             {...register(`requisites.${index}.courseId`)}
                           >
                             <option value="">Select course&hellip;</option>
-                            {courses.map(({ id, number }) => (
-                              <option key={id} value={id}>
-                                {number}
-                              </option>
-                            ))}
+                            {courses
+                              .toSorted((a, b) =>
+                                a.number.localeCompare(b.number),
+                              )
+                              .map(({ id, number }) => (
+                                <option key={id} value={id}>
+                                  {number}
+                                </option>
+                              ))}
                           </Select>
                           <Spacer />
                           <CloseButton
@@ -370,6 +361,7 @@ export default function EditCourseForm({
                   Delete
                 </Button>
                 <DeleteAlertDialog
+                  title="Delete Course"
                   isOpen={dialogIsOpen}
                   onClose={dialogOnClose}
                   onDelete={deleteThis}
@@ -401,53 +393,5 @@ export default function EditCourseForm({
         </form>
       </ModalContent>
     </Modal>
-  );
-}
-
-function DeleteAlertDialog({
-  isOpen,
-  onClose,
-  onDelete,
-}: {
-  isOpen: boolean;
-  onClose: () => void;
-  onDelete: () => void;
-}) {
-  const cancelRef = useRef<HTMLButtonElement | null>(null);
-
-  function onClick() {
-    onClose();
-    onDelete();
-  }
-
-  return (
-    <AlertDialog
-      leastDestructiveRef={cancelRef}
-      isOpen={isOpen}
-      onClose={onClose}
-    >
-      <AlertDialogOverlay>
-        <AlertDialogContent>
-          <AlertDialogHeader fontSize="lg" fontWeight="bold">
-            Delete Course
-          </AlertDialogHeader>
-          <AlertDialogBody>
-            Are you sure? You can't undo this action.
-          </AlertDialogBody>
-          <AlertDialogFooter>
-            <Button onClick={onClose} ref={cancelRef} mr={3}>
-              Cancel
-            </Button>
-            <Button
-              onClick={onClick}
-              colorScheme="red"
-              leftIcon={<DeleteIcon />}
-            >
-              Delete
-            </Button>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialogOverlay>
-    </AlertDialog>
   );
 }

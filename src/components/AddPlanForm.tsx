@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { useDb } from "../providers/DatabaseProvider.tsx";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Button,
@@ -15,6 +15,11 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
+  NumberDecrementStepper,
+  NumberIncrementStepper,
+  NumberInput,
+  NumberInputField,
+  NumberInputStepper,
   Textarea,
   VStack,
 } from "@chakra-ui/react";
@@ -24,6 +29,7 @@ import Plan from "../models/Plan.tsx";
 const AddPlanSchema = z.object({
   name: z.string().min(1, "Plan name is required"),
   description: z.string(),
+  years: z.preprocess((x) => parseInt(x as string, 10), z.number().positive()),
 });
 
 type AddPlanData = z.infer<typeof AddPlanSchema>;
@@ -42,13 +48,19 @@ export default function AddPlanForm({
     handleSubmit,
     register,
     reset,
+    control,
     formState: { errors },
   } = useForm<AddPlanData>({
     resolver: zodResolver(AddPlanSchema),
+    defaultValues: { years: 4 },
   });
 
   async function onSubmit(values: AddPlanData) {
-    const newPlan: Plan = { ...values, years: [] };
+    const { years, ...fields } = values;
+    const newPlan: Plan = {
+      ...fields,
+      years: Array(years).fill({ fall: [], spring: [], summer: [] }),
+    };
     await db.createPlan(newPlan);
     reset();
     onClose();
@@ -76,6 +88,25 @@ export default function AddPlanForm({
                 <Textarea {...register("description")} />
                 <FormErrorMessage>
                   {errors.description && errors.description.message}
+                </FormErrorMessage>
+              </FormControl>
+              <FormControl isInvalid={!!errors.years}>
+                <FormLabel>Number of Years</FormLabel>
+                <Controller
+                  name="years"
+                  control={control}
+                  render={({ field: { ref, ...fields } }) => (
+                    <NumberInput min={1} {...fields}>
+                      <NumberInputField ref={ref} />
+                      <NumberInputStepper>
+                        <NumberIncrementStepper />
+                        <NumberDecrementStepper />
+                      </NumberInputStepper>
+                    </NumberInput>
+                  )}
+                />
+                <FormErrorMessage>
+                  {errors.years && errors.years.message}
                 </FormErrorMessage>
               </FormControl>
             </VStack>

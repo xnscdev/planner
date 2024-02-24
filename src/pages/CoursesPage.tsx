@@ -1,6 +1,6 @@
 import {
-  Box,
   Button,
+  Flex,
   Heading,
   HStack,
   useDisclosure,
@@ -45,7 +45,7 @@ export default function CoursesPage() {
     filter,
   );
   return (
-    <Box p={10}>
+    <Flex flexDir="column" align="stretch" h="100%" p={10}>
       <Heading size="lg">Manage Courses</Heading>
       <HStack mt={8} mb={12} spacing={4} wrap="wrap">
         <Button
@@ -71,30 +71,41 @@ export default function CoursesPage() {
         onClose={onClose}
         update={update}
       />
-      {loading ? (
-        <Heading size="md" color="gray">
-          Loading&hellip;
-        </Heading>
-      ) : filteredCourses.length ? (
-        <Wrap spacing={6}>
-          {filteredCourses.map(({ id, ...course }) => (
-            <WrapItem key={id}>
-              <CourseCard
-                id={id}
-                course={course}
-                courses={courses}
-                update={update}
-              />
-            </WrapItem>
-          ))}
-        </Wrap>
-      ) : courses.length ? (
-        <Heading size="md">No courses matched your search.</Heading>
-      ) : (
-        <Heading size="md">
-          No courses yet! Add a course above to get started.
-        </Heading>
-      )}
-    </Box>
+      <Flex
+        p={6}
+        borderRadius={8}
+        borderColor="gray.200"
+        borderWidth={1}
+        flexGrow={1}
+        overflowY="auto"
+        flexDir="column"
+        align="stretch"
+      >
+        {loading ? (
+          <Heading size="md" color="gray">
+            Loading&hellip;
+          </Heading>
+        ) : filteredCourses.length ? (
+          <Wrap spacing={6}>
+            {filteredCourses.map(({ id, ...course }) => (
+              <WrapItem key={id}>
+                <CourseCard
+                  id={id}
+                  course={course}
+                  courses={courses}
+                  update={update}
+                />
+              </WrapItem>
+            ))}
+          </Wrap>
+        ) : courses.length ? (
+          <Heading size="md">No courses matched your search.</Heading>
+        ) : (
+          <Heading size="md">
+            No courses yet! Add a course above to get started.
+          </Heading>
+        )}
+      </Flex>
+    </Flex>
   );
 }
