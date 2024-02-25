@@ -1,18 +1,36 @@
 import Course from "../models/Course.tsx";
-import { Card, CardBody, CardHeader, Heading, Text } from "@chakra-ui/react";
+import {
+  Card,
+  CardBody,
+  CardFooter,
+  CardHeader,
+  Heading,
+  Text,
+} from "@chakra-ui/react";
 import { randomCourseColor } from "../util/colors.ts";
 import { useDrag } from "react-dnd";
 
 export default function DragCourseCard({
   course,
+  origin,
+  useCount,
+  onDrop,
 }: {
   course: Course & { id: string };
+  origin: string;
+  useCount: number;
+  onDrop: () => void;
 }) {
   const [bgColor] = randomCourseColor(course.number);
   const [{ isDragging }, ref] = useDrag(
     () => ({
       type: "Course",
-      item: course,
+      item: { courseId: course.id, origin },
+      end: (_, monitor) => {
+        if (monitor.didDrop()) {
+          onDrop();
+        }
+      },
       collect: (monitor) => ({
         isDragging: monitor.isDragging(),
       }),
@@ -37,6 +55,13 @@ export default function DragCourseCard({
             {course.description}
           </Text>
         </CardBody>
+      )}
+      {useCount > 0 && (
+        <CardFooter>
+          <Text as="i">
+            Course added to plan {useCount} time{useCount > 1 && "s"}
+          </Text>
+        </CardFooter>
       )}
     </Card>
   );

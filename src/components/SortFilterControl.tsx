@@ -5,9 +5,11 @@ import {
   Menu,
   MenuButton,
   MenuDivider,
+  MenuItem,
   MenuItemOption,
   MenuList,
   MenuOptionGroup,
+  Switch,
 } from "@chakra-ui/react";
 import { ChevronDownIcon } from "@chakra-ui/icons";
 
@@ -18,6 +20,9 @@ export function SortFilterControl({
   setSortNumber,
   filter,
   setFilter,
+  showUsed,
+  setShowUsed,
+  usedOption,
 }: {
   sortSubject: string;
   setSortSubject: Dispatch<SetStateAction<string>>;
@@ -25,6 +30,9 @@ export function SortFilterControl({
   setSortNumber: Dispatch<SetStateAction<string>>;
   filter: string;
   setFilter: Dispatch<SetStateAction<string>>;
+  showUsed?: boolean;
+  setShowUsed?: Dispatch<SetStateAction<boolean>>;
+  usedOption: boolean;
 }) {
   return (
     <>
@@ -52,6 +60,20 @@ export function SortFilterControl({
             <MenuItemOption value="asc">Ascending</MenuItemOption>
             <MenuItemOption value="dsc">Descending</MenuItemOption>
           </MenuOptionGroup>
+          {usedOption && (
+            <>
+              <MenuDivider />
+              <MenuItem
+                as={Switch}
+                isChecked={showUsed!}
+                onChange={(event) =>
+                  setShowUsed!((event.target as HTMLInputElement).checked)
+                }
+              >
+                Show Used
+              </MenuItem>
+            </>
+          )}
         </MenuList>
       </Menu>
       <Input

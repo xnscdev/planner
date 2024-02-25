@@ -20,8 +20,10 @@ export default function PlanPage() {
       if (!plan) {
         return navigate("/plans");
       }
-      setPlan(plan);
-      db.getAllCourses().then((courses) => setCourses(courses));
+      db.getAllCourses().then((courses) => {
+        setCourses(courses);
+        setPlan(plan);
+      });
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

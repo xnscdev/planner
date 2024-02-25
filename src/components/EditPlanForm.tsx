@@ -36,6 +36,8 @@ import { sortAndFilterCourses } from "../util/course.ts";
 import { SortFilterControl } from "./SortFilterControl.tsx";
 import DeleteAlertDialog from "./DeleteAlertDialog.tsx";
 import { useNavigate } from "react-router-dom";
+import CourseStack from "./CourseStack.tsx";
+import { useDrop } from "react-dnd";
 
 const EditPlanSchema = z.object({
   name: z.string().min(1, "Plan name is required"),
@@ -72,7 +74,10 @@ export default function EditPlanForm({
   const [sortSubject, setSortSubject] = useState("asc");
   const [sortNumber, setSortNumber] = useState("asc");
   const [filter, setFilter] = useState("");
-  const [year, setYear] = useState(0);
+  const [showUsed, setShowUsed] = useState(false);
+  const [numYears, setNumYears] = useState(initialPlan.years.length);
+  const [selectedYear, setSelectedYear] = useState(0);
+  const [useCount, setUseCount] = useState(buildUseCountMap(initialPlan));
   const {
     handleSubmit,
     register,
@@ -81,12 +86,31 @@ export default function EditPlanForm({
     formState: { errors },
   } = useForm<EditPlanData>({
     resolver: zodResolver(EditPlanSchema),
-    defaultValues: plan,
+    defaultValues: initialPlan,
   });
-  const { fields, insert, remove } = useFieldArray({
+  const {
+    fields: yearFields,
+    insert: yearInsert,
+    remove: yearRemove,
+  } = useFieldArray({
     control,
     name: "years",
   });
+  const [, drop] = useDrop(
+    () => ({
+      accept: "Course",
+      drop: (item: { courseId: string; origin: string }) =>
+        subtractUseCount(item.courseId),
+      canDrop: (item) => item.origin !== "courses",
+    }),
+    [],
+  );
+  const courseMap = new Map<string, Course>(
+    courses.map((course) => {
+      const { id, ...courseFields } = course;
+      return [id, courseFields];
+    }),
+  );
 
   async function onSubmit(values: EditPlanData) {
     await db.updatePlan(id, values);
@@ -104,19 +128,47 @@ export default function EditPlanForm({
     navigate("/plans");
   }
 
+  function buildUseCountMap(plan: Plan) {
+    const map = new Map<string, number>();
+    for (const year of plan.years) {
+      for (const { courseId } of [year.fall, year.spring, year.summer].flat()) {
+        map.set(courseId, (map.get(courseId) ?? 0) + 1);
+      }
+    }
+    return map;
+  }
+
   function addYear() {
-    const newYear = year + 1;
-    insert(newYear, { fall: [], spring: [], summer: [] });
-    setYear(newYear);
+    const newYear = selectedYear + 1;
+    yearInsert(newYear, { fall: [], spring: [], summer: [] });
+    setSelectedYear(newYear);
+    setNumYears((numYears) => numYears + 1);
   }
 
   function deleteYear() {
-    remove(year);
-    setYear(year ? year - 1 : 0);
+    yearRemove(selectedYear);
+    setSelectedYear(selectedYear ? selectedYear - 1 : 0);
+    setNumYears((numYears) => numYears - 1);
+  }
+
+  function addUseCount(id: string) {
+    setUseCount((useCount) => {
+      const map = new Map([...useCount]);
+      map.set(id, (map.get(id) ?? 0) + 1);
+      return map;
+    });
+  }
+
+  function subtractUseCount(id: string) {
+    setUseCount((useCount) => {
+      const map = new Map([...useCount]);
+      map.set(id, map.get(id)! - 1);
+      return map;
+    });
   }
 
   const filteredCourses = sortAndFilterCourses(
-    courses,
+    courses.filter((course) => showUsed || !useCount.get(course.id)),
     sortSubject,
     sortNumber,
     filter,
@@ -196,29 +248,33 @@ export default function EditPlanForm({
                   setSortNumber={setSortNumber}
                   filter={filter}
                   setFilter={setFilter}
+                  showUsed={showUsed}
+                  setShowUsed={setShowUsed}
+                  usedOption={true}
                 />
               </HStack>
               <Flex
-                pr={3}
                 flexGrow={1}
                 flexBasis={0}
                 overflowY="auto"
                 flexDir="column"
                 align="stretch"
               >
-                <Box h="100%">
-                  <VStack spacing={4} align="stretch">
-                    {filteredCourses.length ? (
-                      filteredCourses.map((course) => (
-                        <DragCourseCard key={course.id} course={course} />
-                      ))
-                    ) : (
-                      <Text color="gray.600">
-                        No courses match your search.
-                      </Text>
-                    )}
-                  </VStack>
-                </Box>
+                <VStack ref={drop} h="100%" mr={3} spacing={4} align="stretch">
+                  {filteredCourses.length ? (
+                    filteredCourses.map((course) => (
+                      <DragCourseCard
+                        key={course.id}
+                        course={course}
+                        origin="courses"
+                        useCount={useCount.get(course.id) ?? 0}
+                        onDrop={() => addUseCount(course.id)}
+                      />
+                    ))
+                  ) : (
+                    <Text color="gray.600">No courses match your search.</Text>
+                  )}
+                </VStack>
               </Flex>
             </Flex>
             <Flex flexDir="column" align="start" h="100%">
@@ -232,19 +288,19 @@ export default function EditPlanForm({
               <Flex mt={4} flexDir="column" align="start" h="100%">
                 <HStack spacing={6}>
                   <IconButton
-                    onClick={() => setYear((year) => year - 1)}
+                    onClick={() => setSelectedYear((year) => year - 1)}
                     icon={<ChevronLeftIcon />}
                     size="sm"
                     aria-label="Previous Year"
-                    isDisabled={year <= 0}
+                    isDisabled={selectedYear <= 0}
                   />
-                  <Heading size="md">Year {year + 1}</Heading>
+                  <Heading size="md">Year {selectedYear + 1}</Heading>
                   <IconButton
-                    onClick={() => setYear((year) => year + 1)}
+                    onClick={() => setSelectedYear((year) => year + 1)}
                     icon={<ChevronRightIcon />}
                     size="sm"
                     aria-label="Next Year"
-                    isDisabled={year >= fields.length - 1}
+                    isDisabled={selectedYear >= numYears - 1}
                   />
                   <IconButton
                     onClick={deleteYear}
@@ -252,44 +308,47 @@ export default function EditPlanForm({
                     size="sm"
                     colorScheme="red"
                     aria-label="Delete Year"
-                    isDisabled={fields.length === 1}
+                    isDisabled={numYears === 1}
                   />
                 </HStack>
-                <HStack flexGrow={1} mt={4} spacing={8} align="start">
-                  <Flex flexDir="column" align="stretch" w={300} h="100%">
-                    <Heading size="sm">Fall</Heading>
-                    <VStack
-                      flexGrow={1}
-                      p={4}
-                      mt={4}
-                      spacing={4}
-                      borderRadius={8}
-                      bgColor="gray.200"
-                    ></VStack>
-                  </Flex>
-                  <Flex flexDir="column" align="stretch" w={300} h="100%">
-                    <Heading size="sm">Spring</Heading>
-                    <VStack
-                      flexGrow={1}
-                      p={4}
-                      mt={4}
-                      spacing={4}
-                      borderRadius={8}
-                      bgColor="gray.200"
-                    ></VStack>
-                  </Flex>
-                  <Flex flexDir="column" align="stretch" w={300} h="100%">
-                    <Heading size="sm">Summer</Heading>
-                    <VStack
-                      flexGrow={1}
-                      p={4}
-                      mt={4}
-                      spacing={4}
-                      borderRadius={8}
-                      bgColor="gray.200"
-                    ></VStack>
-                  </Flex>
-                </HStack>
+                {yearFields.map(({ id }, index) => (
+                  <HStack
+                    key={id}
+                    flexGrow={1}
+                    mt={4}
+                    spacing={8}
+                    align="start"
+                    display={selectedYear === index ? "flex" : "none"}
+                  >
+                    <Flex flexDir="column" align="stretch" w={300} h="100%">
+                      <Heading size="sm">Fall</Heading>
+                      <CourseStack
+                        courseMap={courseMap}
+                        year={index}
+                        semester="fall"
+                        control={control}
+                      />
+                    </Flex>
+                    <Flex flexDir="column" align="stretch" w={300} h="100%">
+                      <Heading size="sm">Spring</Heading>
+                      <CourseStack
+                        courseMap={courseMap}
+                        year={index}
+                        semester="spring"
+                        control={control}
+                      />
+                    </Flex>
+                    <Flex flexDir="column" align="stretch" w={300} h="100%">
+                      <Heading size="sm">Summer</Heading>
+                      <CourseStack
+                        courseMap={courseMap}
+                        year={index}
+                        semester="summer"
+                        control={control}
+                      />
+                    </Flex>
+                  </HStack>
+                ))}
               </Flex>
             </Flex>
           </HStack>

@@ -63,6 +63,7 @@ export default function CoursesPage() {
           setSortNumber={setSortNumber}
           filter={filter}
           setFilter={setFilter}
+          usedOption={false}
         />
       </HStack>
       <EditCourseForm
