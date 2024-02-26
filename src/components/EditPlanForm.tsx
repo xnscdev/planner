@@ -320,33 +320,24 @@ export default function EditPlanForm({
                     align="start"
                     display={selectedYear === index ? "flex" : "none"}
                   >
-                    <Flex flexDir="column" align="stretch" w={300} h="100%">
-                      <Heading size="sm">Fall</Heading>
-                      <CourseStack
-                        courseMap={courseMap}
-                        year={index}
-                        semester="fall"
-                        control={control}
-                      />
-                    </Flex>
-                    <Flex flexDir="column" align="stretch" w={300} h="100%">
-                      <Heading size="sm">Spring</Heading>
-                      <CourseStack
-                        courseMap={courseMap}
-                        year={index}
-                        semester="spring"
-                        control={control}
-                      />
-                    </Flex>
-                    <Flex flexDir="column" align="stretch" w={300} h="100%">
-                      <Heading size="sm">Summer</Heading>
-                      <CourseStack
-                        courseMap={courseMap}
-                        year={index}
-                        semester="summer"
-                        control={control}
-                      />
-                    </Flex>
+                    <CourseStack
+                      courseMap={courseMap}
+                      year={index}
+                      semester="fall"
+                      control={control}
+                    />
+                    <CourseStack
+                      courseMap={courseMap}
+                      year={index}
+                      semester="spring"
+                      control={control}
+                    />
+                    <CourseStack
+                      courseMap={courseMap}
+                      year={index}
+                      semester="summer"
+                      control={control}
+                    />
                   </HStack>
                 ))}
               </Flex>

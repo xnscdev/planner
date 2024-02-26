@@ -50,6 +50,10 @@ const EditCourseSchema = z.object({
   number: z.string().min(1, "Course number is required"),
   title: z.string().min(1, "Course title is required"),
   description: z.string(),
+  credits: z.preprocess(
+    (x) => parseInt(x as string, 10),
+    z.number().nonnegative(),
+  ),
   tags: z.array(
     z.object({
       text: z.string(),
@@ -108,7 +112,7 @@ export default function EditCourseForm({
         const { tags, ...defaultCourse } = course;
         return { tags: tags.map((tag) => ({ text: tag })), ...defaultCourse };
       } else {
-        return { tags: [], requisites: [] };
+        return { credits: 3, tags: [], requisites: [] };
       }
     })(),
   });
@@ -202,6 +206,25 @@ export default function EditCourseForm({
                 <Textarea {...register("description")} />
                 <FormErrorMessage>
                   {errors.description && errors.description.message}
+                </FormErrorMessage>
+              </FormControl>
+              <FormControl isInvalid={!!errors.credits}>
+                <FormLabel>Credits</FormLabel>
+                <Controller
+                  name="credits"
+                  control={control}
+                  render={({ field: { ref, ...fields } }) => (
+                    <NumberInput min={0} {...fields}>
+                      <NumberInputField ref={ref} />
+                      <NumberInputStepper>
+                        <NumberIncrementStepper />
+                        <NumberDecrementStepper />
+                      </NumberInputStepper>
+                    </NumberInput>
+                  )}
+                />
+                <FormErrorMessage>
+                  {errors.credits && errors.credits.message}
                 </FormErrorMessage>
               </FormControl>
               <FormControl>

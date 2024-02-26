@@ -10,6 +10,7 @@ export interface CourseRequisite {
 export default interface Course {
   number: string;
   title: string;
+  credits: number;
   description: string;
   tags: string[];
   requisites: CourseRequisite[];

@@ -39,6 +39,9 @@ export default function CourseCard({
         <CardHeader>
           <Heading size="md">{course.number}</Heading>
           <Heading size="sm">{course.title}</Heading>
+          <Text>
+            {course.credits} credit{course.credits !== 1 && "s"}
+          </Text>
         </CardHeader>
         {course.description && (
           <CardBody>
