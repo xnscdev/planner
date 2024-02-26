@@ -38,7 +38,7 @@ export default function DragCourseCard({
       }),
       canDrag: () => editing,
     }),
-    [],
+    [editing],
   );
 
   return (
