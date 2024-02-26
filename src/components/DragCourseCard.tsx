@@ -6,9 +6,11 @@ import {
   CardHeader,
   Heading,
   Text,
+  useDisclosure,
 } from "@chakra-ui/react";
 import { randomCourseColor } from "../util/colors.ts";
 import { useDrag } from "react-dnd";
+import CoursePreviewDialog from "./CoursePreviewDialog.tsx";
 
 export default function DragCourseCard({
   course,
@@ -24,6 +26,7 @@ export default function DragCourseCard({
   onDrop: () => void;
 }) {
   const [bgColor] = randomCourseColor(course.number);
+  const { isOpen, onOpen, onClose } = useDisclosure();
   const [{ isDragging }, ref] = useDrag(
     () => ({
       type: "Course",
@@ -44,6 +47,7 @@ export default function DragCourseCard({
   return (
     <Card
       ref={ref}
+      onClick={onOpen}
       size="sm"
       bgColor={bgColor}
       opacity={isDragging ? 0.5 : 1}
@@ -65,11 +69,12 @@ export default function DragCourseCard({
       )}
       {useCount > 0 && (
         <CardFooter>
-          <Text as="i">
+          <Text fontStyle="italic">
             Course added to plan {useCount} time{useCount > 1 && "s"}
           </Text>
         </CardFooter>
       )}
+      <CoursePreviewDialog isOpen={isOpen} onClose={onClose} course={course} />
     </Card>
   );
 }
