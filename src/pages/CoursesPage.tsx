@@ -14,17 +14,17 @@ import Course from "../models/Course.tsx";
 import { useEffect, useState } from "react";
 import CourseCard from "../components/CourseCard.tsx";
 import { sortAndFilterCourses } from "../util/course.ts";
-import { SortFilterControl } from "../components/SortFilterControl.tsx";
 import { BiPlus } from "react-icons/bi";
+import { SortFilterControl } from "../components/SortFilterControl.tsx";
 
 export default function CoursesPage() {
   const db = useDb();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [loading, setLoading] = useState(true);
   const [courses, setCourses] = useState<(Course & { id: string })[]>([]);
-  const [sortSubject, setSortSubject] = useState("asc");
-  const [sortNumber, setSortNumber] = useState("asc");
-  const [showAvailability, setShowAvailability] = useState([
+  const [sortCriteria, setSortCriteria] = useState("subject");
+  const [sortDirection, setSortDirection] = useState("asc");
+  const [filterOptions, setFilterOptions] = useState([
     "fall",
     "spring",
     "summer",
@@ -46,10 +46,10 @@ export default function CoursesPage() {
 
   const filteredCourses = sortAndFilterCourses(
     courses,
-    sortSubject,
-    sortNumber,
-    showAvailability,
+    sortCriteria,
+    sortDirection,
     filter,
+    filterOptions,
   );
   return (
     <Flex flexDir="column" align="stretch" h="100%" p={10}>
@@ -64,14 +64,14 @@ export default function CoursesPage() {
           Add Course
         </Button>
         <SortFilterControl
-          sortSubject={sortSubject}
-          setSortSubject={setSortSubject}
-          sortNumber={sortNumber}
-          setSortNumber={setSortNumber}
+          sortCriteria={sortCriteria}
+          setSortCriteria={setSortCriteria}
+          sortDirection={sortDirection}
+          setSortDirection={setSortDirection}
           filter={filter}
           setFilter={setFilter}
-          showAvailability={showAvailability}
-          setShowAvailability={setShowAvailability}
+          filterOptions={filterOptions}
+          setFilterOptions={setFilterOptions}
           usedOption={false}
         />
       </HStack>

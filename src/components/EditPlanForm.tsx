@@ -29,7 +29,6 @@ import DeleteAlertDialog from "./DeleteAlertDialog.tsx";
 import { useNavigate } from "react-router-dom";
 import CourseStack from "./CourseStack.tsx";
 import { useDrop } from "react-dnd";
-import { SortFilterControl } from "./SortFilterControl.tsx";
 import {
   BiChevronLeft,
   BiChevronRight,
@@ -39,6 +38,7 @@ import {
   BiTrash,
   BiX,
 } from "react-icons/bi";
+import { SortFilterControl } from "./SortFilterControl.tsx";
 
 const EditPlanSchema = z.object({
   name: z.string().min(1, "Plan name is required"),
@@ -72,15 +72,14 @@ export default function EditPlanForm({
   } = useDisclosure();
   const [editing, setEditing] = useState(false);
   const [plan, setPlan] = useState(initialPlan);
-  const [sortSubject, setSortSubject] = useState("asc");
-  const [sortNumber, setSortNumber] = useState("asc");
-  const [showAvailability, setShowAvailability] = useState([
+  const [sortCriteria, setSortCriteria] = useState("subject");
+  const [sortDirection, setSortDirection] = useState("asc");
+  const [filterOptions, setFilterOptions] = useState([
     "fall",
     "spring",
     "summer",
   ]);
   const [filter, setFilter] = useState("");
-  const [showUsed, setShowUsed] = useState(false);
   const [numYears, setNumYears] = useState(initialPlan.years.length);
   const [selectedYear, setSelectedYear] = useState(0);
   const [useCount, setUseCount] = useState(buildUseCountMap(initialPlan));
@@ -177,11 +176,13 @@ export default function EditPlanForm({
   }
 
   const filteredCourses = sortAndFilterCourses(
-    courses.filter((course) => showUsed || !useCount.get(course.id)),
-    sortSubject,
-    sortNumber,
-    showAvailability,
+    courses.filter(
+      (course) => filterOptions.includes("used") || !useCount.get(course.id),
+    ),
+    sortCriteria,
+    sortDirection,
     filter,
+    filterOptions,
   );
   return (
     <chakra.form onSubmit={handleSubmit(onSubmit)} h="100%">
@@ -262,16 +263,14 @@ export default function EditPlanForm({
                 <Heading size="md">Find Courses</Heading>
                 <HStack>
                   <SortFilterControl
-                    sortSubject={sortSubject}
-                    setSortSubject={setSortSubject}
-                    sortNumber={sortNumber}
-                    setSortNumber={setSortNumber}
+                    sortCriteria={sortCriteria}
+                    setSortCriteria={setSortCriteria}
+                    sortDirection={sortDirection}
+                    setSortDirection={setSortDirection}
                     filter={filter}
                     setFilter={setFilter}
-                    showAvailability={showAvailability}
-                    setShowAvailability={setShowAvailability}
-                    showUsed={showUsed}
-                    setShowUsed={setShowUsed}
+                    filterOptions={filterOptions}
+                    setFilterOptions={setFilterOptions}
                     usedOption={true}
                   />
                 </HStack>

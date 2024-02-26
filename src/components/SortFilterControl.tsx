@@ -6,37 +6,31 @@ import {
   Menu,
   MenuButton,
   MenuDivider,
-  MenuItem,
   MenuItemOption,
   MenuList,
   MenuOptionGroup,
-  Switch,
 } from "@chakra-ui/react";
 import { BiFilterAlt } from "react-icons/bi";
 
 export function SortFilterControl({
-  sortSubject,
-  setSortSubject,
-  sortNumber,
-  setSortNumber,
+  sortCriteria,
+  setSortCriteria,
+  sortDirection,
+  setSortDirection,
   filter,
   setFilter,
-  showAvailability,
-  setShowAvailability,
-  showUsed,
-  setShowUsed,
+  filterOptions,
+  setFilterOptions,
   usedOption,
 }: {
-  sortSubject: string;
-  setSortSubject: Dispatch<SetStateAction<string>>;
-  sortNumber: string;
-  setSortNumber: Dispatch<SetStateAction<string>>;
+  sortCriteria: string;
+  setSortCriteria: Dispatch<SetStateAction<string>>;
+  sortDirection: string;
+  setSortDirection: Dispatch<SetStateAction<string>>;
   filter: string;
   setFilter: Dispatch<SetStateAction<string>>;
-  showAvailability: string[];
-  setShowAvailability: Dispatch<SetStateAction<string[]>>;
-  showUsed?: boolean;
-  setShowUsed?: Dispatch<SetStateAction<boolean>>;
+  filterOptions: string[];
+  setFilterOptions: Dispatch<SetStateAction<string[]>>;
   usedOption: boolean;
 }) {
   return (
@@ -49,9 +43,20 @@ export function SortFilterControl({
         />
         <MenuList>
           <MenuOptionGroup
-            value={sortSubject}
-            onChange={(value) => setSortSubject(value as string)}
-            title="By subject"
+            value={sortCriteria}
+            onChange={(value) => setSortCriteria(value as string)}
+            title="Sort criteria"
+            type="radio"
+          >
+            <MenuItemOption value="subject">Subject</MenuItemOption>
+            <MenuItemOption value="number">Number</MenuItemOption>
+            <MenuItemOption value="credits">Credits</MenuItemOption>
+          </MenuOptionGroup>
+          <MenuDivider />
+          <MenuOptionGroup
+            value={sortDirection}
+            onChange={(value) => setSortDirection(value as string)}
+            title="Sort direction"
             type="radio"
           >
             <MenuItemOption value="asc">Ascending</MenuItemOption>
@@ -59,45 +64,24 @@ export function SortFilterControl({
           </MenuOptionGroup>
           <MenuDivider />
           <MenuOptionGroup
-            value={sortNumber}
-            onChange={(value) => setSortNumber(value as string)}
-            title="By number"
-            type="radio"
-          >
-            <MenuItemOption value="asc">Ascending</MenuItemOption>
-            <MenuItemOption value="dsc">Descending</MenuItemOption>
-          </MenuOptionGroup>
-          <MenuDivider />
-          <MenuOptionGroup
-            value={showAvailability}
-            onChange={(value) => setShowAvailability(value as string[])}
-            title="Filter by availability"
+            value={filterOptions}
+            onChange={(value) => setFilterOptions(value as string[])}
+            title="Filter"
             type="checkbox"
           >
-            <MenuItemOption value="fall">Fall</MenuItemOption>
-            <MenuItemOption value="spring">Spring</MenuItemOption>
-            <MenuItemOption value="summer">Summer</MenuItemOption>
+            <MenuItemOption value="fall">Show fall courses</MenuItemOption>
+            <MenuItemOption value="spring">Show spring courses</MenuItemOption>
+            <MenuItemOption value="summer">Show summer courses</MenuItemOption>
+            {usedOption && (
+              <MenuItemOption value="used">Show used courses</MenuItemOption>
+            )}
           </MenuOptionGroup>
-          {usedOption && (
-            <>
-              <MenuDivider />
-              <MenuItem
-                as={Switch}
-                isChecked={showUsed!}
-                onChange={(event) =>
-                  setShowUsed!((event.target as HTMLInputElement).checked)
-                }
-              >
-                Show Used
-              </MenuItem>
-            </>
-          )}
         </MenuList>
       </Menu>
       <Input
         type="text"
-        w="fit-content"
-        placeholder="Filter"
+        w="auto"
+        placeholder="Filter&hellip;"
         value={filter}
         onChange={(event) => setFilter(event.target.value)}
       />
