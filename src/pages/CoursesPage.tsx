@@ -23,6 +23,11 @@ export default function CoursesPage() {
   const [courses, setCourses] = useState<(Course & { id: string })[]>([]);
   const [sortSubject, setSortSubject] = useState("asc");
   const [sortNumber, setSortNumber] = useState("asc");
+  const [showAvailability, setShowAvailability] = useState([
+    "fall",
+    "spring",
+    "summer",
+  ]);
   const [filter, setFilter] = useState("");
 
   function update() {
@@ -42,6 +47,7 @@ export default function CoursesPage() {
     courses,
     sortSubject,
     sortNumber,
+    showAvailability,
     filter,
   );
   return (
@@ -63,6 +69,8 @@ export default function CoursesPage() {
           setSortNumber={setSortNumber}
           filter={filter}
           setFilter={setFilter}
+          showAvailability={showAvailability}
+          setShowAvailability={setShowAvailability}
           usedOption={false}
         />
       </HStack>

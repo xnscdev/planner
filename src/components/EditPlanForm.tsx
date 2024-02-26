@@ -33,11 +33,11 @@ import {
 import Course from "../models/Course.tsx";
 import DragCourseCard from "./DragCourseCard.tsx";
 import { sortAndFilterCourses } from "../util/course.ts";
-import { SortFilterControl } from "./SortFilterControl.tsx";
 import DeleteAlertDialog from "./DeleteAlertDialog.tsx";
 import { useNavigate } from "react-router-dom";
 import CourseStack from "./CourseStack.tsx";
 import { useDrop } from "react-dnd";
+import { SortFilterControl } from "./SortFilterControl.tsx";
 
 const EditPlanSchema = z.object({
   name: z.string().min(1, "Plan name is required"),
@@ -73,6 +73,11 @@ export default function EditPlanForm({
   const [plan, setPlan] = useState(initialPlan);
   const [sortSubject, setSortSubject] = useState("asc");
   const [sortNumber, setSortNumber] = useState("asc");
+  const [showAvailability, setShowAvailability] = useState([
+    "fall",
+    "spring",
+    "summer",
+  ]);
   const [filter, setFilter] = useState("");
   const [showUsed, setShowUsed] = useState(false);
   const [numYears, setNumYears] = useState(initialPlan.years.length);
@@ -172,6 +177,7 @@ export default function EditPlanForm({
     courses.filter((course) => showUsed || !useCount.get(course.id)),
     sortSubject,
     sortNumber,
+    showAvailability,
     filter,
   );
   return (
@@ -256,6 +262,8 @@ export default function EditPlanForm({
                     setSortNumber={setSortNumber}
                     filter={filter}
                     setFilter={setFilter}
+                    showAvailability={showAvailability}
+                    setShowAvailability={setShowAvailability}
                     showUsed={showUsed}
                     setShowUsed={setShowUsed}
                     usedOption={true}

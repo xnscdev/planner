@@ -1,5 +1,4 @@
 import {
-  Box,
   Button,
   Card,
   CardBody,
@@ -46,33 +45,48 @@ import { useDb } from "../providers/DatabaseProvider.tsx";
 import { randomColor } from "../util/colors.ts";
 import DeleteAlertDialog from "./DeleteAlertDialog.tsx";
 
-const EditCourseSchema = z.object({
-  number: z.string().min(1, "Course number is required"),
-  title: z.string().min(1, "Course title is required"),
-  description: z.string(),
-  credits: z.preprocess(
-    (x) => parseInt(x as string, 10),
-    z.number().nonnegative(),
-  ),
-  tags: z.array(
-    z.object({
-      text: z.string(),
-    }),
-  ),
-  requisites: z.array(
-    z.object({
-      courseId: z.string().min(1, "Please select a course"),
-      type: z.union([z.literal("pre"), z.literal("co"), z.literal("year")]),
-      ignore: z.boolean(),
-      compare: z.union([z.literal("<="), z.literal("="), z.literal(">=")]),
-      year: z.preprocess(
-        (x) => parseInt(x as string, 10),
-        z.number().positive(),
-      ),
-      strict: z.boolean(),
-    }),
-  ),
-});
+const EditCourseSchema = z
+  .object({
+    number: z.string().min(1, "Course number is required"),
+    title: z.string().min(1, "Course title is required"),
+    description: z.string(),
+    credits: z.preprocess(
+      (x) => parseInt(x as string, 10),
+      z.number().nonnegative(),
+    ),
+    availableFall: z.boolean(),
+    availableSpring: z.boolean(),
+    availableSummer: z.boolean(),
+    tags: z.array(
+      z.object({
+        text: z.string(),
+      }),
+    ),
+    requisites: z.array(
+      z.object({
+        courseId: z.string(),
+        type: z.union([z.literal("pre"), z.literal("co"), z.literal("year")]),
+        ignore: z.boolean(),
+        compare: z.union([z.literal("<="), z.literal("="), z.literal(">=")]),
+        year: z.preprocess(
+          (x) => parseInt(x as string, 10),
+          z.number().positive(),
+        ),
+        strict: z.boolean(),
+      }),
+    ),
+  })
+  .superRefine(({ requisites }, ctx) => {
+    requisites.forEach(({ type, courseId }, index) => {
+      if (type !== "year" && !courseId) {
+        ctx.addIssue({
+          path: ["requisites", index, "courseId"],
+          code: "custom",
+          message: "Please select a course",
+        });
+      }
+    });
+  });
 
 type EditCourseData = z.infer<typeof EditCourseSchema>;
 
@@ -228,6 +242,14 @@ export default function EditCourseForm({
                 </FormErrorMessage>
               </FormControl>
               <FormControl>
+                <FormLabel as="legend">Availability</FormLabel>
+                <HStack spacing={5}>
+                  <Checkbox {...register("availableFall")}>Fall</Checkbox>
+                  <Checkbox {...register("availableSpring")}>Spring</Checkbox>
+                  <Checkbox {...register("availableSummer")}>Summer</Checkbox>
+                </HStack>
+              </FormControl>
+              <FormControl>
                 <FormLabel>Tags</FormLabel>
                 <Input
                   type="text"
@@ -278,83 +300,86 @@ export default function EditCourseForm({
                   {requisiteFields.map((req, index) => (
                     <Card key={req.id}>
                       <CardBody>
-                        <HStack>
+                        <HStack spacing={2}>
                           <Select
+                            size="sm"
                             variant="flushed"
-                            {...register(`requisites.${index}.courseId`)}
+                            {...register(`requisites.${index}.type`)}
                           >
-                            <option value="">Select course&hellip;</option>
-                            {courses
-                              .toSorted((a, b) =>
-                                a.number.localeCompare(b.number),
-                              )
-                              .map(({ id, number }) => (
-                                <option key={id} value={id}>
-                                  {number}
-                                </option>
-                              ))}
+                            <option value="pre">Prerequisite</option>
+                            <option value="co">Corequisite</option>
+                            <option value="year">Year is</option>
                           </Select>
-                          <Spacer />
+                          {watch(`requisites.${index}.type`) === "year" && (
+                            <>
+                              <Select
+                                size="sm"
+                                variant="flushed"
+                                {...register(`requisites.${index}.compare`)}
+                              >
+                                <option value="=">equal to</option>
+                                <option value=">=">at least</option>
+                                <option value="<=">at most</option>
+                              </Select>
+                              <Controller
+                                name={`requisites.${index}.year`}
+                                control={control}
+                                render={({ field: { ref, ...fields } }) => (
+                                  <NumberInput
+                                    min={1}
+                                    size="sm"
+                                    variant="flushed"
+                                    {...fields}
+                                  >
+                                    <NumberInputField ref={ref} />
+                                    <NumberInputStepper>
+                                      <NumberIncrementStepper />
+                                      <NumberDecrementStepper />
+                                    </NumberInputStepper>
+                                  </NumberInput>
+                                )}
+                              />
+                            </>
+                          )}
                           <CloseButton
                             onClick={() => requisiteRemove(index)}
                             size="sm"
                           />
                         </HStack>
-                        {errors.requisites?.[index]?.courseId && (
+                        {errors.requisites?.[index]?.year && (
                           <Text color="red" fontSize="sm">
-                            {errors.requisites[index]!.courseId!.message}
+                            {errors.requisites[index]!.year!.message}
                           </Text>
                         )}
                         <VStack mt={4} spacing={3} align="stretch">
-                          <Box>
-                            <HStack spacing={2}>
+                          {watch(`requisites.${index}.type`) !== "year" && (
+                            <>
+                              <Text fontSize="sm">
+                                One of the following courses:
+                              </Text>
                               <Select
                                 size="sm"
                                 variant="flushed"
-                                {...register(`requisites.${index}.type`)}
+                                {...register(`requisites.${index}.courseId`)}
                               >
-                                <option value="pre">Prerequisite</option>
-                                <option value="co">Corequisite</option>
-                                <option value="year">Year is</option>
+                                <option value="">Select course&hellip;</option>
+                                {courses
+                                  .toSorted((a, b) =>
+                                    a.number.localeCompare(b.number),
+                                  )
+                                  .map(({ id, number }) => (
+                                    <option key={id} value={id}>
+                                      {number}
+                                    </option>
+                                  ))}
                               </Select>
-                              {watch(`requisites.${index}.type`) === "year" && (
-                                <>
-                                  <Select
-                                    size="sm"
-                                    variant="flushed"
-                                    {...register(`requisites.${index}.compare`)}
-                                  >
-                                    <option value="=">equal to</option>
-                                    <option value=">=">at least</option>
-                                    <option value="<=">at most</option>
-                                  </Select>
-                                  <Controller
-                                    name={`requisites.${index}.year`}
-                                    control={control}
-                                    render={({ field: { ref, ...fields } }) => (
-                                      <NumberInput
-                                        min={1}
-                                        size="sm"
-                                        variant="flushed"
-                                        {...fields}
-                                      >
-                                        <NumberInputField ref={ref} />
-                                        <NumberInputStepper>
-                                          <NumberIncrementStepper />
-                                          <NumberDecrementStepper />
-                                        </NumberInputStepper>
-                                      </NumberInput>
-                                    )}
-                                  />
-                                </>
+                              {errors.requisites?.[index]?.courseId && (
+                                <Text color="red" fontSize="sm">
+                                  {errors.requisites[index]!.courseId!.message}
+                                </Text>
                               )}
-                            </HStack>
-                            {errors.requisites?.[index]?.year && (
-                              <Text color="red" fontSize="sm">
-                                {errors.requisites[index]!.year!.message}
-                              </Text>
-                            )}
-                          </Box>
+                            </>
+                          )}
                           {watch(`requisites.${index}.type`) === "co" && (
                             <Checkbox
                               {...register(`requisites.${index}.strict`)}

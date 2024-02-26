@@ -20,6 +20,8 @@ export function SortFilterControl({
   setSortNumber,
   filter,
   setFilter,
+  showAvailability,
+  setShowAvailability,
   showUsed,
   setShowUsed,
   usedOption,
@@ -30,6 +32,8 @@ export function SortFilterControl({
   setSortNumber: Dispatch<SetStateAction<string>>;
   filter: string;
   setFilter: Dispatch<SetStateAction<string>>;
+  showAvailability: string[];
+  setShowAvailability: Dispatch<SetStateAction<string[]>>;
   showUsed?: boolean;
   setShowUsed?: Dispatch<SetStateAction<boolean>>;
   usedOption: boolean;
@@ -59,6 +63,17 @@ export function SortFilterControl({
           >
             <MenuItemOption value="asc">Ascending</MenuItemOption>
             <MenuItemOption value="dsc">Descending</MenuItemOption>
+          </MenuOptionGroup>
+          <MenuDivider />
+          <MenuOptionGroup
+            value={showAvailability}
+            onChange={(value) => setShowAvailability(value as string[])}
+            title="Filter by availability"
+            type="checkbox"
+          >
+            <MenuItemOption value="fall">Fall</MenuItemOption>
+            <MenuItemOption value="spring">Spring</MenuItemOption>
+            <MenuItemOption value="summer">Summer</MenuItemOption>
           </MenuOptionGroup>
           {usedOption && (
             <>

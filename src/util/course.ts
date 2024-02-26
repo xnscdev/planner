@@ -10,12 +10,19 @@ export function getNumber(number: string) {
   return match ? match[0] : "";
 }
 
-export function filterCourse(filter: string, course: Course) {
+export function filterCourse(
+  course: Course,
+  filter: string,
+  availability: string[],
+) {
   const str = filter.toLowerCase();
   return (
-    course.number.toLowerCase().includes(str) ||
-    course.title.toLowerCase().includes(str) ||
-    course.description.toLowerCase().includes(str)
+    (course.number.toLowerCase().includes(str) ||
+      course.title.toLowerCase().includes(str) ||
+      course.description.toLowerCase().includes(str)) &&
+    ((course.availableFall && availability.includes("fall")) ||
+      (course.availableSpring && availability.includes("spring")) ||
+      (course.availableSummer && availability.includes("summer")))
   );
 }
 
@@ -45,9 +52,10 @@ export function sortAndFilterCourses(
   courses: (Course & { id: string })[],
   sortSubject: string,
   sortNumber: string,
+  showAvailability: string[],
   filter: string,
 ) {
   return courses
     .toSorted((a, b) => sortCourses(a, b, sortSubject, sortNumber))
-    .filter((course) => filterCourse(filter, course));
+    .filter((course) => filterCourse(course, filter, showAvailability));
 }

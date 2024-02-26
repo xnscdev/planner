@@ -5,6 +5,7 @@ import {
   CardFooter,
   CardHeader,
   Heading,
+  HStack,
   Tag,
   Text,
   useDisclosure,
@@ -39,9 +40,20 @@ export default function CourseCard({
         <CardHeader>
           <Heading size="md">{course.number}</Heading>
           <Heading size="sm">{course.title}</Heading>
-          <Text>
-            {course.credits} credit{course.credits !== 1 && "s"}
-          </Text>
+          <HStack spacing={8}>
+            <Text>
+              {course.credits} credit{course.credits !== 1 && "s"}
+            </Text>
+            <Text>
+              {[
+                course.availableFall && "Fall",
+                course.availableSpring && "Spring",
+                course.availableSummer && "Summer",
+              ]
+                .filter(Boolean)
+                .join(", ")}
+            </Text>
+          </HStack>
         </CardHeader>
         {course.description && (
           <CardBody>

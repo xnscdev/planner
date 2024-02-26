@@ -11,6 +11,9 @@ export default interface Course {
   number: string;
   title: string;
   credits: number;
+  availableFall: boolean;
+  availableSpring: boolean;
+  availableSummer: boolean;
   description: string;
   tags: string[];
   requisites: CourseRequisite[];
