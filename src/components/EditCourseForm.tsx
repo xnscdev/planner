@@ -9,6 +9,7 @@ import {
   FormHelperText,
   FormLabel,
   HStack,
+  Icon,
   IconButton,
   Input,
   Modal,
@@ -35,7 +36,6 @@ import {
   Wrap,
   WrapItem,
 } from "@chakra-ui/react";
-import { AddIcon, DeleteIcon, EditIcon } from "@chakra-ui/icons";
 import { z } from "zod";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -44,6 +44,7 @@ import Course from "../models/Course.tsx";
 import { useDb } from "../providers/DatabaseProvider.tsx";
 import { randomColor } from "../util/colors.ts";
 import DeleteAlertDialog from "./DeleteAlertDialog.tsx";
+import { BiPlus, BiSave, BiTrash } from "react-icons/bi";
 
 const EditCourseSchema = z
   .object({
@@ -289,7 +290,7 @@ export default function EditCourseForm({
                           strict: false,
                         })
                       }
-                      icon={<AddIcon />}
+                      icon={<Icon boxSize={6} as={BiPlus} />}
                       aria-label="Add Prerequisite"
                       colorScheme="green"
                       size="sm"
@@ -404,7 +405,7 @@ export default function EditCourseForm({
                 <Button
                   onClick={dialogOnOpen}
                   colorScheme="red"
-                  leftIcon={<DeleteIcon />}
+                  leftIcon={<Icon boxSize={6} as={BiTrash} />}
                 >
                   Delete
                 </Button>
@@ -421,7 +422,7 @@ export default function EditCourseForm({
                 <Button
                   ml={3}
                   colorScheme="blue"
-                  leftIcon={<EditIcon />}
+                  leftIcon={<Icon boxSize={6} as={BiSave} />}
                   type="submit"
                 >
                   Save
@@ -430,7 +431,7 @@ export default function EditCourseForm({
             ) : (
               <Button
                 colorScheme="green"
-                leftIcon={<AddIcon />}
+                leftIcon={<Icon boxSize={6} as={BiPlus} />}
                 isLoading={isSubmitting}
                 type="submit"
               >

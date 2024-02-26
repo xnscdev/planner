@@ -4,6 +4,7 @@ import {
   Flex,
   Heading,
   HStack,
+  Icon,
   IconButton,
   Link as ChakraLink,
   Menu,
@@ -19,7 +20,7 @@ import {
   useNavigate,
 } from "react-router-dom";
 import { ReactNode } from "react";
-import { HamburgerIcon } from "@chakra-ui/icons";
+import { BiMenu } from "react-icons/bi";
 
 export default function NavBar() {
   const auth = useAuth();
@@ -39,7 +40,10 @@ export default function NavBar() {
           </ChakraLink>
           <Spacer />
           <Menu>
-            <MenuButton as={IconButton} icon={<HamburgerIcon />} />
+            <MenuButton
+              as={IconButton}
+              icon={<Icon boxSize={6} as={BiMenu} />}
+            />
             <MenuList>
               {auth.user ? <LoggedInMenu /> : <LoggedOutMenu />}
             </MenuList>

@@ -3,11 +3,11 @@ import {
   Flex,
   Heading,
   HStack,
+  Icon,
   useDisclosure,
   Wrap,
   WrapItem,
 } from "@chakra-ui/react";
-import { AddIcon } from "@chakra-ui/icons";
 import EditCourseForm from "../components/EditCourseForm.tsx";
 import { useDb } from "../providers/DatabaseProvider.tsx";
 import Course from "../models/Course.tsx";
@@ -15,6 +15,7 @@ import { useEffect, useState } from "react";
 import CourseCard from "../components/CourseCard.tsx";
 import { sortAndFilterCourses } from "../util/course.ts";
 import { SortFilterControl } from "../components/SortFilterControl.tsx";
+import { BiPlus } from "react-icons/bi";
 
 export default function CoursesPage() {
   const db = useDb();
@@ -56,7 +57,7 @@ export default function CoursesPage() {
       <HStack mt={8} mb={12} spacing={4} wrap="wrap">
         <Button
           onClick={onOpen}
-          leftIcon={<AddIcon />}
+          leftIcon={<Icon boxSize={6} as={BiPlus} />}
           colorScheme="green"
           isDisabled={loading}
         >

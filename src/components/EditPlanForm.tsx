@@ -12,6 +12,7 @@ import {
   FormLabel,
   Heading,
   HStack,
+  Icon,
   IconButton,
   Input,
   Text,
@@ -21,15 +22,6 @@ import {
 } from "@chakra-ui/react";
 import { useDb } from "../providers/DatabaseProvider.tsx";
 import { useState } from "react";
-import {
-  AddIcon,
-  CheckIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  CloseIcon,
-  DeleteIcon,
-  EditIcon,
-} from "@chakra-ui/icons";
 import Course from "../models/Course.tsx";
 import DragCourseCard from "./DragCourseCard.tsx";
 import { sortAndFilterCourses } from "../util/course.ts";
@@ -38,6 +30,15 @@ import { useNavigate } from "react-router-dom";
 import CourseStack from "./CourseStack.tsx";
 import { useDrop } from "react-dnd";
 import { SortFilterControl } from "./SortFilterControl.tsx";
+import {
+  BiChevronLeft,
+  BiChevronRight,
+  BiPencil,
+  BiPlus,
+  BiSave,
+  BiTrash,
+  BiX,
+} from "react-icons/bi";
 
 const EditPlanSchema = z.object({
   name: z.string().min(1, "Plan name is required"),
@@ -126,6 +127,8 @@ export default function EditPlanForm({
   function cancelEdit() {
     reset(plan);
     setUseCount(buildUseCountMap(plan));
+    setSelectedYear(0);
+    setNumYears(plan.years.length);
     setEditing(false);
   }
 
@@ -191,12 +194,15 @@ export default function EditPlanForm({
                 <HStack spacing={4}>
                   <Button
                     colorScheme="teal"
-                    leftIcon={<CheckIcon />}
+                    leftIcon={<Icon boxSize={6} as={BiSave} />}
                     type="submit"
                   >
                     Save Plan
                   </Button>
-                  <Button onClick={cancelEdit} leftIcon={<CloseIcon />}>
+                  <Button
+                    onClick={cancelEdit}
+                    leftIcon={<Icon boxSize={6} as={BiX} />}
+                  >
                     Cancel
                   </Button>
                 </HStack>
@@ -204,7 +210,7 @@ export default function EditPlanForm({
                 <Button
                   onClick={() => setEditing(true)}
                   colorScheme="teal"
-                  leftIcon={<EditIcon />}
+                  leftIcon={<Icon boxSize={6} as={BiPencil} />}
                 >
                   Edit Plan
                 </Button>
@@ -233,7 +239,7 @@ export default function EditPlanForm({
                 <Button
                   onClick={dialogOnOpen}
                   colorScheme="red"
-                  leftIcon={<DeleteIcon />}
+                  leftIcon={<Icon boxSize={6} as={BiTrash} />}
                 >
                   Delete
                 </Button>
@@ -308,7 +314,7 @@ export default function EditPlanForm({
                 <Button
                   onClick={addYear}
                   colorScheme="green"
-                  leftIcon={<AddIcon />}
+                  leftIcon={<Icon boxSize={6} as={BiPlus} />}
                   mb={4}
                 >
                   Add Year
@@ -318,7 +324,7 @@ export default function EditPlanForm({
                 <HStack spacing={6}>
                   <IconButton
                     onClick={() => setSelectedYear((year) => year - 1)}
-                    icon={<ChevronLeftIcon />}
+                    icon={<Icon boxSize={6} as={BiChevronLeft} />}
                     size="sm"
                     aria-label="Previous Year"
                     isDisabled={selectedYear <= 0}
@@ -326,7 +332,7 @@ export default function EditPlanForm({
                   <Heading size="md">Year {selectedYear + 1}</Heading>
                   <IconButton
                     onClick={() => setSelectedYear((year) => year + 1)}
-                    icon={<ChevronRightIcon />}
+                    icon={<Icon boxSize={6} as={BiChevronRight} />}
                     size="sm"
                     aria-label="Next Year"
                     isDisabled={selectedYear >= numYears - 1}
@@ -334,7 +340,7 @@ export default function EditPlanForm({
                   {editing && (
                     <IconButton
                       onClick={deleteYear}
-                      icon={<DeleteIcon />}
+                      icon={<Icon boxSize={6} as={BiX} />}
                       size="sm"
                       colorScheme="red"
                       aria-label="Delete Year"

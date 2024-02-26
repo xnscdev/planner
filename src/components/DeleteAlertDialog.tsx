@@ -7,8 +7,9 @@ import {
   AlertDialogHeader,
   AlertDialogOverlay,
   Button,
+  Icon,
 } from "@chakra-ui/react";
-import { DeleteIcon } from "@chakra-ui/icons";
+import { BiTrash } from "react-icons/bi";
 
 export default function DeleteAlertDialog({
   title,
@@ -49,7 +50,7 @@ export default function DeleteAlertDialog({
             <Button
               onClick={onClick}
               colorScheme="red"
-              leftIcon={<DeleteIcon />}
+              leftIcon={<Icon boxSize={6} as={BiTrash} />}
             >
               Delete
             </Button>

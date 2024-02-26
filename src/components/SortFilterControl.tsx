@@ -1,6 +1,7 @@
 import { Dispatch, SetStateAction } from "react";
 import {
-  Button,
+  Icon,
+  IconButton,
   Input,
   Menu,
   MenuButton,
@@ -11,7 +12,7 @@ import {
   MenuOptionGroup,
   Switch,
 } from "@chakra-ui/react";
-import { ChevronDownIcon } from "@chakra-ui/icons";
+import { BiFilterAlt } from "react-icons/bi";
 
 export function SortFilterControl({
   sortSubject,
@@ -41,9 +42,11 @@ export function SortFilterControl({
   return (
     <>
       <Menu closeOnSelect={false}>
-        <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
-          Sort
-        </MenuButton>
+        <MenuButton
+          as={IconButton}
+          icon={<Icon boxSize={6} as={BiFilterAlt} />}
+          aria-label="Sort and Filter"
+        />
         <MenuList>
           <MenuOptionGroup
             value={sortSubject}

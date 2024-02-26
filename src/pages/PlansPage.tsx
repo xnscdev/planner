@@ -2,16 +2,17 @@ import {
   Box,
   Button,
   Heading,
+  Icon,
   useDisclosure,
   Wrap,
   WrapItem,
 } from "@chakra-ui/react";
-import { AddIcon } from "@chakra-ui/icons";
 import { useDb } from "../providers/DatabaseProvider.tsx";
 import { useEffect, useState } from "react";
 import Plan from "../models/Plan.tsx";
 import PlanCard from "../components/PlanCard.tsx";
 import AddPlanForm from "../components/AddPlanForm.tsx";
+import { BiPlus } from "react-icons/bi";
 
 export default function PlansPage() {
   const db = useDb();
@@ -39,7 +40,7 @@ export default function PlansPage() {
         onClick={onOpen}
         mt={8}
         mb={12}
-        leftIcon={<AddIcon />}
+        leftIcon={<Icon boxSize={6} as={BiPlus} />}
         colorScheme="green"
         isDisabled={loading}
       >

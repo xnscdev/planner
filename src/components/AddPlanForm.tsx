@@ -7,6 +7,7 @@ import {
   FormControl,
   FormErrorMessage,
   FormLabel,
+  Icon,
   Input,
   Modal,
   ModalBody,
@@ -23,8 +24,8 @@ import {
   Textarea,
   VStack,
 } from "@chakra-ui/react";
-import { AddIcon } from "@chakra-ui/icons";
 import Plan from "../models/Plan.tsx";
+import { BiPlus } from "react-icons/bi";
 
 const AddPlanSchema = z.object({
   name: z.string().min(1, "Plan name is required"),
@@ -112,7 +113,11 @@ export default function AddPlanForm({
             </VStack>
           </ModalBody>
           <ModalFooter>
-            <Button colorScheme="green" leftIcon={<AddIcon />} type="submit">
+            <Button
+              colorScheme="green"
+              leftIcon={<Icon boxSize={6} as={BiPlus} />}
+              type="submit"
+            >
               Add
             </Button>
           </ModalFooter>
