@@ -14,11 +14,13 @@ export default function DragCourseCard({
   course,
   origin,
   useCount,
+  editing,
   onDrop,
 }: {
   course: Course & { id: string };
   origin: string;
   useCount: number;
+  editing: boolean;
   onDrop: () => void;
 }) {
   const [bgColor] = randomCourseColor(course.number);
@@ -34,6 +36,7 @@ export default function DragCourseCard({
       collect: (monitor) => ({
         isDragging: monitor.isDragging(),
       }),
+      canDrag: () => editing,
     }),
     [],
   );

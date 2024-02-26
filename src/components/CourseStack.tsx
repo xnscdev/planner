@@ -10,11 +10,13 @@ export default function CourseStack({
   year,
   semester,
   control,
+  editing,
 }: {
   courseMap: Map<string, Course>;
   year: number;
   semester: "fall" | "spring" | "summer";
   control: Control<Plan>;
+  editing: boolean;
 }) {
   const [{ isOver }, drop] = useDrop(
     () => ({
@@ -76,6 +78,7 @@ export default function CourseStack({
               course={{ ...courseMap.get(courseId)!, id: courseId }}
               origin={getOrigin()}
               useCount={0}
+              editing={editing}
               onDrop={() => courseRemove(index)}
             />
           ))}

@@ -120,6 +120,7 @@ export default function EditPlanForm({
 
   function cancelEdit() {
     reset(plan);
+    setUseCount(buildUseCountMap(plan));
     setEditing(false);
   }
 
@@ -238,54 +239,74 @@ export default function EditPlanForm({
                 onDelete={deleteThis}
               />
             </VStack>
-            <Flex flexDir="column" rowGap={6} maxW={300} align="start" h="100%">
-              <Heading size="md">Find Courses</Heading>
-              <HStack>
-                <SortFilterControl
-                  sortSubject={sortSubject}
-                  setSortSubject={setSortSubject}
-                  sortNumber={sortNumber}
-                  setSortNumber={setSortNumber}
-                  filter={filter}
-                  setFilter={setFilter}
-                  showUsed={showUsed}
-                  setShowUsed={setShowUsed}
-                  usedOption={true}
-                />
-              </HStack>
+            {editing && (
               <Flex
-                flexGrow={1}
-                flexBasis={0}
-                overflowY="auto"
                 flexDir="column"
-                align="stretch"
+                rowGap={6}
+                maxW={300}
+                align="start"
+                h="100%"
               >
-                <VStack ref={drop} h="100%" mr={3} spacing={4} align="stretch">
-                  {filteredCourses.length ? (
-                    filteredCourses.map((course) => (
-                      <DragCourseCard
-                        key={course.id}
-                        course={course}
-                        origin="courses"
-                        useCount={useCount.get(course.id) ?? 0}
-                        onDrop={() => addUseCount(course.id)}
-                      />
-                    ))
-                  ) : (
-                    <Text color="gray.600">No courses match your search.</Text>
-                  )}
-                </VStack>
+                <Heading size="md">Find Courses</Heading>
+                <HStack>
+                  <SortFilterControl
+                    sortSubject={sortSubject}
+                    setSortSubject={setSortSubject}
+                    sortNumber={sortNumber}
+                    setSortNumber={setSortNumber}
+                    filter={filter}
+                    setFilter={setFilter}
+                    showUsed={showUsed}
+                    setShowUsed={setShowUsed}
+                    usedOption={true}
+                  />
+                </HStack>
+                <Flex
+                  flexGrow={1}
+                  flexBasis={0}
+                  overflowY="auto"
+                  flexDir="column"
+                  align="stretch"
+                >
+                  <VStack
+                    ref={drop}
+                    h="100%"
+                    mr={3}
+                    spacing={4}
+                    align="stretch"
+                  >
+                    {filteredCourses.length ? (
+                      filteredCourses.map((course) => (
+                        <DragCourseCard
+                          key={course.id}
+                          course={course}
+                          origin="courses"
+                          useCount={useCount.get(course.id) ?? 0}
+                          editing={editing}
+                          onDrop={() => addUseCount(course.id)}
+                        />
+                      ))
+                    ) : (
+                      <Text color="gray.600">
+                        No courses match your search.
+                      </Text>
+                    )}
+                  </VStack>
+                </Flex>
               </Flex>
-            </Flex>
+            )}
             <Flex flexDir="column" align="start" h="100%">
-              <Button
-                onClick={addYear}
-                colorScheme="green"
-                leftIcon={<AddIcon />}
-              >
-                Add Year
-              </Button>
-              <Flex mt={4} flexDir="column" align="start" h="100%">
+              {editing && (
+                <Button
+                  onClick={addYear}
+                  colorScheme="green"
+                  leftIcon={<AddIcon />}
+                  mb={4}
+                >
+                  Add Year
+                </Button>
+              )}
+              <Flex flexDir="column" align="start" h="100%">
                 <HStack spacing={6}>
                   <IconButton
                     onClick={() => setSelectedYear((year) => year - 1)}
@@ -302,14 +323,16 @@ export default function EditPlanForm({
                     aria-label="Next Year"
                     isDisabled={selectedYear >= numYears - 1}
                   />
-                  <IconButton
-                    onClick={deleteYear}
-                    icon={<DeleteIcon />}
-                    size="sm"
-                    colorScheme="red"
-                    aria-label="Delete Year"
-                    isDisabled={numYears === 1}
-                  />
+                  {editing && (
+                    <IconButton
+                      onClick={deleteYear}
+                      icon={<DeleteIcon />}
+                      size="sm"
+                      colorScheme="red"
+                      aria-label="Delete Year"
+                      isDisabled={numYears === 1}
+                    />
+                  )}
                 </HStack>
                 {yearFields.map(({ id }, index) => (
                   <HStack
@@ -325,18 +348,21 @@ export default function EditPlanForm({
                       year={index}
                       semester="fall"
                       control={control}
+                      editing={editing}
                     />
                     <CourseStack
                       courseMap={courseMap}
                       year={index}
                       semester="spring"
                       control={control}
+                      editing={editing}
                     />
                     <CourseStack
                       courseMap={courseMap}
                       year={index}
                       semester="summer"
                       control={control}
+                      editing={editing}
                     />
                   </HStack>
                 ))}
