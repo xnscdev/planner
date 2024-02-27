@@ -47,6 +47,7 @@ export default function CourseStack({
   }
 
   function onDrop({ courseId }: { courseId: string; origin: string }) {
+    console.log(courseId);
     courseAppend({ courseId: courseId });
   }
 
@@ -79,15 +80,17 @@ export default function CourseStack({
       >
         <VStack spacing={4}>
           {sortCourses(
-            courseFields.map(({ id, courseId }) => ({
+            courseFields.map(({ id, courseId }, index) => ({
               ...courseMap.get(courseId)!,
-              id,
+              id: courseId,
+              key: `${id}${index}`,
+              index,
             })),
             sortCriteria,
             sortDirection,
-          ).map((course, index) => (
+          ).map(({ key, index, ...course }) => (
             <DragCourseCard
-              key={`${course.id}${index}`}
+              key={key}
               course={course}
               courseMap={courseMap}
               fullPlan={fullPlan}

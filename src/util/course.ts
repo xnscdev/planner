@@ -46,8 +46,8 @@ function filterCourse(course: Course, filter: string, filterOptions: string[]) {
   );
 }
 
-export function sortCourses(
-  courses: (Course & { id: string })[],
+export function sortCourses<T extends Course>(
+  courses: T[],
   sortCriteria: string,
   sortDirection: string,
 ) {
