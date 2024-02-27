@@ -96,7 +96,7 @@ export default function EditPlanForm({
     reset,
     watch,
     control,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<EditPlanData>({
     resolver: zodResolver(EditPlanSchema),
     defaultValues: initialPlan,
@@ -212,6 +212,7 @@ export default function EditPlanForm({
                     colorScheme="teal"
                     leftIcon={<Icon boxSize={6} as={BiSave} />}
                     type="submit"
+                    isLoading={isSubmitting}
                   >
                     Save Plan
                   </Button>

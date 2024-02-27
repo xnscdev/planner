@@ -78,6 +78,20 @@ export function formatCourseOptions(
     .join(" or ");
 }
 
+export function formatYearRequirement(
+  year: number,
+  compare: "<=" | "=" | ">=",
+) {
+  switch (compare) {
+    case "<=":
+      return `Must take during year ${year} or earlier`;
+    case "=":
+      return `Must take during year ${year}`;
+    case ">=":
+      return `Must take during year ${year} or later`;
+  }
+}
+
 export function getRequisiteErrors(
   course: Course,
   courseMap: Map<string, Course>,
@@ -98,6 +112,9 @@ export function getRequisiteErrors(
     errors.push(`Not available in ${semester} session`);
   }
   for (const req of course.requisites) {
+    if (req.ignore) {
+      continue;
+    }
     const courseIds = req.courses.map(({ courseId }) => courseId);
     switch (req.type) {
       case "pre":
