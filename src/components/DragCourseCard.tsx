@@ -1,4 +1,4 @@
-import Course, { CourseRef } from "../models/Course.tsx";
+import Course from "../models/Course.tsx";
 import {
   Box,
   Card,
@@ -6,14 +6,18 @@ import {
   CardFooter,
   CardHeader,
   Heading,
+  Tag,
   Text,
   useDisclosure,
+  VStack,
+  Wrap,
+  WrapItem,
 } from "@chakra-ui/react";
-import { courseCardColor } from "../util/colors.ts";
+import { courseCardColor, tagColor } from "../util/colors.ts";
 import { useDrag } from "react-dnd";
 import CoursePreviewDialog from "./CoursePreviewDialog.tsx";
 import { PlanYear } from "../models/Plan.tsx";
-import { formatCourseOptions } from "../util/course.ts";
+import { getRequisiteErrors } from "../util/course.ts";
 
 export default function DragCourseCard({
   course,
@@ -56,7 +60,7 @@ export default function DragCourseCard({
   );
 
   const errors = fullPlan
-    ? checkError(course, courseMap, fullPlan, year!, semester!)
+    ? getRequisiteErrors(course, courseMap, fullPlan, year!, semester!)
     : [];
   const errorProps = errors.length ? { boxShadow: "0 0 5px 2px red" } : {};
   return (
@@ -83,24 +87,35 @@ export default function DragCourseCard({
           </Text>
         </CardBody>
       )}
-      {useCount > 0 && (
-        <CardFooter>
-          <Text fontStyle="italic">
-            Course added to plan {useCount} time{useCount > 1 && "s"}
-          </Text>
-        </CardFooter>
-      )}
-      {errors.length > 0 && (
-        <CardFooter>
-          <Box>
-            {errors.map((error) => (
-              <Text key={error} color="red">
-                {error}
-              </Text>
-            ))}
-          </Box>
-        </CardFooter>
-      )}
+      <CardFooter>
+        <VStack align="start" spacing={2}>
+          {course.tags.length > 0 && (
+            <Wrap>
+              {course.tags.map((tag) => (
+                <WrapItem key={tag}>
+                  <Tag boxShadow="base" colorScheme={tagColor(tag)}>
+                    {tag}
+                  </Tag>
+                </WrapItem>
+              ))}
+            </Wrap>
+          )}
+          {useCount > 0 && (
+            <Text fontStyle="italic">
+              Course added to plan {useCount} time{useCount > 1 && "s"}
+            </Text>
+          )}
+          {errors.length > 0 && (
+            <Box>
+              {errors.map((error) => (
+                <Text key={error} color="red">
+                  {error}
+                </Text>
+              ))}
+            </Box>
+          )}
+        </VStack>
+      </CardFooter>
       <CoursePreviewDialog
         isOpen={isOpen}
         onClose={onClose}
@@ -109,84 +124,4 @@ export default function DragCourseCard({
       />
     </Card>
   );
-}
-
-function checkError(
-  course: Course,
-  courseMap: Map<string, Course>,
-  fullPlan: PlanYear[],
-  year: number,
-  semester: "fall" | "spring" | "summer",
-) {
-  const errors: string[] = [];
-  for (const req of course.requisites) {
-    const courseIds = req.courses.map(({ courseId }) => courseId);
-    switch (req.type) {
-      case "pre":
-        if (!hasCourseBefore(fullPlan, year, semester, courseIds)) {
-          errors.push(
-            `Prerequisite not met: ${formatCourseOptions(req, courseMap)}`,
-          );
-        }
-        break;
-      case "co":
-        if (!hasCourseConcurrent(fullPlan, year, semester, courseIds)) {
-          if (req.strict) {
-            errors.push(
-              `Strict corequisite not met: ${formatCourseOptions(req, courseMap)}`,
-            );
-          } else if (!hasCourseBefore(fullPlan, year, semester, courseIds)) {
-            errors.push(
-              `Corequisite not met: ${formatCourseOptions(req, courseMap)}`,
-            );
-          }
-        }
-        break;
-      case "year":
-        console.log(year, req.year);
-        if (year + 1 !== req.year) {
-          errors.push(`Must be taken in year ${req.year}`);
-        }
-    }
-  }
-  return errors;
-}
-
-function hasCourseBefore(
-  fullPlan: PlanYear[],
-  year: number,
-  semester: "fall" | "spring" | "summer",
-  courses: string[],
-) {
-  for (let i = 0; i < year; i++) {
-    const semesters = [fullPlan[i].fall, fullPlan[i].spring, fullPlan[i].summer]
-      .flat()
-      .map(({ courseId }) => courseId);
-    if (courses.some((course) => semesters.includes(course))) {
-      return true;
-    }
-  }
-
-  const semesterList: CourseRef[][] = [];
-  switch (semester) {
-    case "spring":
-      semesterList.push(fullPlan[year].fall);
-      break;
-    case "summer":
-      semesterList.push(fullPlan[year].fall);
-      semesterList.push(fullPlan[year].spring);
-      break;
-  }
-  const semesters = semesterList.flat().map(({ courseId }) => courseId);
-  return courses.some((course) => semesters.includes(course));
-}
-
-function hasCourseConcurrent(
-  fullPlan: PlanYear[],
-  year: number,
-  semester: "fall" | "spring" | "summer",
-  courses: string[],
-) {
-  const courseIds = fullPlan[year][semester].map(({ courseId }) => courseId);
-  return courses.some((course) => courseIds.includes(course));
 }

@@ -1,4 +1,5 @@
-import Course, { CourseRequisite } from "../models/Course.tsx";
+import Course, { CourseRef, CourseRequisite } from "../models/Course.tsx";
+import { PlanYear } from "../models/Plan.tsx";
 
 export function getSubject(number: string) {
   const match = number.match(/^[a-zA-Z]+/);
@@ -10,7 +11,7 @@ export function getNumber(number: string) {
   return match ? match[0] : "";
 }
 
-export function sortCourses(
+function sortCourse(
   a: Course,
   b: Course,
   sortCriteria: string,
@@ -33,11 +34,7 @@ export function sortCourses(
   return sortDirection === "dsc" ? -val : val;
 }
 
-export function filterCourse(
-  course: Course,
-  filter: string,
-  filterOptions: string[],
-) {
+function filterCourse(course: Course, filter: string, filterOptions: string[]) {
   const str = filter.toLowerCase();
   return (
     (course.number.toLowerCase().includes(str) ||
@@ -49,6 +46,16 @@ export function filterCourse(
   );
 }
 
+export function sortCourses(
+  courses: (Course & { id: string })[],
+  sortCriteria: string,
+  sortDirection: string,
+) {
+  return courses.toSorted((a, b) =>
+    sortCourse(a, b, sortCriteria, sortDirection),
+  );
+}
+
 export function sortAndFilterCourses(
   courses: (Course & { id: string })[],
   sortCriteria: string,
@@ -56,9 +63,9 @@ export function sortAndFilterCourses(
   filter: string,
   filterOptions: string[],
 ) {
-  return courses
-    .toSorted((a, b) => sortCourses(a, b, sortCriteria, sortDirection))
-    .filter((course) => filterCourse(course, filter, filterOptions));
+  return sortCourses(courses, sortCriteria, sortDirection).filter((course) =>
+    filterCourse(course, filter, filterOptions),
+  );
 }
 
 export function formatCourseOptions(
@@ -69,4 +76,94 @@ export function formatCourseOptions(
     .map(({ courseId }) => courseMap.get(courseId)?.number)
     .filter(Boolean)
     .join(" or ");
+}
+
+export function getRequisiteErrors(
+  course: Course,
+  courseMap: Map<string, Course>,
+  fullPlan: PlanYear[],
+  year: number,
+  semester: "fall" | "spring" | "summer",
+) {
+  const errors: string[] = [];
+  if (
+    ![
+      course.availableFall && "fall",
+      course.availableSpring && "spring",
+      course.availableSummer && "summer",
+    ]
+      .filter(Boolean)
+      .includes(semester)
+  ) {
+    errors.push(`Not available in ${semester} session`);
+  }
+  for (const req of course.requisites) {
+    const courseIds = req.courses.map(({ courseId }) => courseId);
+    switch (req.type) {
+      case "pre":
+        if (!hasCourseBefore(fullPlan, year, semester, courseIds)) {
+          errors.push(
+            `Prerequisite not met: ${formatCourseOptions(req, courseMap)}`,
+          );
+        }
+        break;
+      case "co":
+        if (!hasCourseConcurrent(fullPlan, year, semester, courseIds)) {
+          if (req.strict) {
+            errors.push(
+              `Strict corequisite not met: ${formatCourseOptions(req, courseMap)}`,
+            );
+          } else if (!hasCourseBefore(fullPlan, year, semester, courseIds)) {
+            errors.push(
+              `Corequisite not met: ${formatCourseOptions(req, courseMap)}`,
+            );
+          }
+        }
+        break;
+      case "year":
+        if (year + 1 !== req.year) {
+          errors.push(`Must be taken in year ${req.year}`);
+        }
+    }
+  }
+  return errors;
+}
+
+export function hasCourseBefore(
+  fullPlan: PlanYear[],
+  year: number,
+  semester: "fall" | "spring" | "summer",
+  courses: string[],
+) {
+  for (let i = 0; i < year; i++) {
+    const semesters = [fullPlan[i].fall, fullPlan[i].spring, fullPlan[i].summer]
+      .flat()
+      .map(({ courseId }) => courseId);
+    if (courses.some((course) => semesters.includes(course))) {
+      return true;
+    }
+  }
+
+  const semesterList: CourseRef[][] = [];
+  switch (semester) {
+    case "spring":
+      semesterList.push(fullPlan[year].fall);
+      break;
+    case "summer":
+      semesterList.push(fullPlan[year].fall);
+      semesterList.push(fullPlan[year].spring);
+      break;
+  }
+  const semesters = semesterList.flat().map(({ courseId }) => courseId);
+  return courses.some((course) => semesters.includes(course));
+}
+
+export function hasCourseConcurrent(
+  fullPlan: PlanYear[],
+  year: number,
+  semester: "fall" | "spring" | "summer",
+  courses: string[],
+) {
+  const courseIds = fullPlan[year][semester].map(({ courseId }) => courseId);
+  return courses.some((course) => courseIds.includes(course));
 }

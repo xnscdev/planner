@@ -18,12 +18,12 @@ interface DatabaseContextData {
   courses: () => CollectionReference<Course>;
   plans: () => CollectionReference<Plan>;
   getAllCourses: () => Promise<(Course & { id: string })[]>;
-  createCourse: (course: Course) => Promise<void>;
+  createCourse: (course: Course) => Promise<string>;
   updateCourse: (id: string, course: Course) => Promise<void>;
   deleteCourse: (id: string) => Promise<void>;
   getAllPlans: () => Promise<(Plan & { id: string })[]>;
   getPlan: (id: string) => Promise<Plan | undefined>;
-  createPlan: (plan: Plan) => Promise<void>;
+  createPlan: (plan: Plan) => Promise<string>;
   updatePlan: (id: string, plan: Plan) => Promise<void>;
   deletePlan: (id: string) => Promise<void>;
 }
@@ -67,7 +67,8 @@ export default function DatabaseProvider({
   }
 
   async function createCourse(course: Course) {
-    await addDoc(courses(), course);
+    const doc = await addDoc(courses(), course);
+    return doc.id;
   }
 
   async function updateCourse(id: string, course: Course) {
@@ -89,7 +90,8 @@ export default function DatabaseProvider({
   }
 
   async function createPlan(plan: Plan) {
-    await addDoc(plans(), plan);
+    const doc = await addDoc(plans(), plan);
+    return doc.id;
   }
 
   async function updatePlan(id: string, plan: Plan) {

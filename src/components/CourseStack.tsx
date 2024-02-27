@@ -4,6 +4,7 @@ import Course from "../models/Course.tsx";
 import { Control, useFieldArray } from "react-hook-form";
 import Plan, { PlanYear } from "../models/Plan.tsx";
 import DragCourseCard from "./DragCourseCard.tsx";
+import { sortCourses } from "../util/course.ts";
 
 export default function CourseStack({
   courseMap,
@@ -12,6 +13,8 @@ export default function CourseStack({
   semester,
   control,
   editing,
+  sortCriteria,
+  sortDirection,
 }: {
   courseMap: Map<string, Course>;
   fullPlan: PlanYear[];
@@ -19,6 +22,8 @@ export default function CourseStack({
   semester: "fall" | "spring" | "summer";
   control: Control<Plan>;
   editing: boolean;
+  sortCriteria: string;
+  sortDirection: string;
 }) {
   const [{ isOver }, drop] = useDrop(
     () => ({
@@ -73,10 +78,17 @@ export default function CourseStack({
         bgColor={isOver ? "gray.100" : "gray.200"}
       >
         <VStack spacing={4}>
-          {courseFields.map(({ id, courseId }, index) => (
+          {sortCourses(
+            courseFields.map(({ id, courseId }) => ({
+              ...courseMap.get(courseId)!,
+              id,
+            })),
+            sortCriteria,
+            sortDirection,
+          ).map((course, index) => (
             <DragCourseCard
-              key={`${id}${index}`}
-              course={{ ...courseMap.get(courseId)!, id: courseId }}
+              key={`${course.id}${index}`}
+              course={course}
               courseMap={courseMap}
               fullPlan={fullPlan}
               year={year}

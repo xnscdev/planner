@@ -32,6 +32,7 @@ import { useDrop } from "react-dnd";
 import {
   BiChevronLeft,
   BiChevronRight,
+  BiCopy,
   BiPencil,
   BiPlus,
   BiSave,
@@ -39,6 +40,7 @@ import {
   BiX,
 } from "react-icons/bi";
 import { SortFilterControl } from "./SortFilterControl.tsx";
+import DuplicateConfirmDialog from "./DuplicateConfirmDialog.tsx";
 
 const EditPlanSchema = z.object({
   name: z.string().min(1, "Plan name is required"),
@@ -69,6 +71,11 @@ export default function EditPlanForm({
     isOpen: dialogIsOpen,
     onOpen: dialogOnOpen,
     onClose: dialogOnClose,
+  } = useDisclosure();
+  const {
+    isOpen: copyIsOpen,
+    onOpen: copyOnOpen,
+    onClose: copyOnClose,
   } = useDisclosure();
   const [editing, setEditing] = useState(false);
   const [plan, setPlan] = useState(initialPlan);
@@ -176,6 +183,12 @@ export default function EditPlanForm({
     });
   }
 
+  async function duplicate() {
+    const newPlan = { ...plan, name: `Copy of ${plan.name}` };
+    await db.createPlan(newPlan);
+    navigate("/plans");
+  }
+
   const fullPlan = watch("years");
   const filteredCourses = sortAndFilterCourses(
     courses.filter(
@@ -210,13 +223,28 @@ export default function EditPlanForm({
                   </Button>
                 </HStack>
               ) : (
-                <Button
-                  onClick={() => setEditing(true)}
-                  colorScheme="teal"
-                  leftIcon={<Icon boxSize={6} as={BiPencil} />}
-                >
-                  Edit Plan
-                </Button>
+                <VStack align="start" spacing={4}>
+                  <Button
+                    onClick={() => setEditing(true)}
+                    colorScheme="teal"
+                    leftIcon={<Icon boxSize={6} as={BiPencil} />}
+                  >
+                    Edit Plan
+                  </Button>
+                  <Button
+                    onClick={copyOnOpen}
+                    colorScheme="orange"
+                    leftIcon={<Icon boxSize={6} as={BiCopy} />}
+                  >
+                    Duplicate
+                  </Button>
+                  <DuplicateConfirmDialog
+                    planName={plan.name}
+                    isOpen={copyIsOpen}
+                    onClose={copyOnClose}
+                    onConfirm={duplicate}
+                  />
+                </VStack>
               )}
               {editing && (
                 <FormControl isInvalid={!!errors.name}>
@@ -227,17 +255,17 @@ export default function EditPlanForm({
                   </FormErrorMessage>
                 </FormControl>
               )}
-              <FormControl isInvalid={!!errors.description}>
-                <FormLabel>Description</FormLabel>
-                {editing ? (
+              {editing ? (
+                <FormControl isInvalid={!!errors.description}>
+                  <FormLabel>Description</FormLabel>
                   <Textarea {...register("description")} />
-                ) : (
-                  <Text whiteSpace="pre-line">{plan.description}</Text>
-                )}
-                <FormErrorMessage>
-                  {errors.description && errors.description.message}
-                </FormErrorMessage>
-              </FormControl>
+                  <FormErrorMessage>
+                    {errors.description && errors.description.message}
+                  </FormErrorMessage>
+                </FormControl>
+              ) : (
+                <Text whiteSpace="pre-line">{plan.description}</Text>
+              )}
               {editing && (
                 <Button
                   onClick={dialogOnOpen}
@@ -366,6 +394,8 @@ export default function EditPlanForm({
                       semester="fall"
                       control={control}
                       editing={editing}
+                      sortCriteria={sortCriteria}
+                      sortDirection={sortDirection}
                     />
                     <CourseStack
                       courseMap={courseMap}
@@ -374,6 +404,8 @@ export default function EditPlanForm({
                       semester="spring"
                       control={control}
                       editing={editing}
+                      sortCriteria={sortCriteria}
+                      sortDirection={sortDirection}
                     />
                     <CourseStack
                       courseMap={courseMap}
@@ -382,6 +414,8 @@ export default function EditPlanForm({
                       semester="summer"
                       control={control}
                       editing={editing}
+                      sortCriteria={sortCriteria}
+                      sortDirection={sortDirection}
                     />
                   </HStack>
                 ))}
