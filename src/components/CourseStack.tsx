@@ -78,7 +78,7 @@ export default function CourseStack({
         borderRadius={8}
         bgColor={isOver ? "gray.100" : "gray.200"}
       >
-        <VStack spacing={4}>
+        <VStack spacing={4} align="stretch">
           {sortCourses(
             courseFields.map(({ id, courseId }, index) => ({
               ...courseMap.get(courseId)!,

@@ -2,7 +2,6 @@ import Course from "../models/Course.tsx";
 import {
   Box,
   Card,
-  CardBody,
   CardFooter,
   CardHeader,
   Heading,
@@ -77,16 +76,18 @@ export default function DragCourseCard({
         <Heading size="md">{course.number}</Heading>
         <Heading size="sm">{course.title}</Heading>
         <Text>
-          {course.credits} credit{course.credits > 1 && "s"}
+          {course.credits} credit{course.credits !== 1 && "s"}
+        </Text>
+        <Text>
+          {[
+            course.availableFall && "Fall",
+            course.availableSpring && "Spring",
+            course.availableSummer && "Summer",
+          ]
+            .filter(Boolean)
+            .join(", ")}
         </Text>
       </CardHeader>
-      {course.description && (
-        <CardBody>
-          <Text noOfLines={2} whiteSpace="pre-line">
-            {course.description}
-          </Text>
-        </CardBody>
-      )}
       <CardFooter>
         <VStack align="start" spacing={2}>
           {course.tags.length > 0 && (
