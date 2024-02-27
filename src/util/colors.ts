@@ -3,33 +3,39 @@ import { getSubject } from "./course.ts";
 
 const seed = 42;
 
-const colors = [
-  "gray",
-  "red",
-  "orange",
-  "yellow",
-  "green",
-  "teal",
-  "blue",
-  "cyan",
-  "purple",
-  "pink",
-];
-
-const shades = [100, 200, 300];
-
-export function randomColor(text: string) {
+export function tagColor(text: string) {
+  const colors = [
+    "gray",
+    "red",
+    "orange",
+    "yellow",
+    "green",
+    "teal",
+    "blue",
+    "cyan",
+    "purple",
+    "pink",
+  ];
   const hash = hashCode(text);
   return colors[hash % colors.length];
 }
 
-export function randomCourseColor(number: string) {
+export function courseCardColor(number: string) {
   const str = getSubject(number);
-  const hash = hashCode(str);
-  const color = colors[hash % colors.length];
-  const shade = shades[hash % shades.length];
-  const lightShade = shade > 100 ? shade - 100 : 50;
-  return [`${color}.${shade}`, `${color}.${lightShade}`];
+  let hash = hashCode(str);
+
+  function random() {
+    const x = Math.sin(hash++) * 10000;
+    return x - Math.floor(x);
+  }
+
+  const hue = 360 * random();
+  const saturation = 25 + 70 * random();
+  const lightness = 85 + 10 * random();
+  return [
+    `hsl(${hue}, ${saturation}%, ${lightness}%)`,
+    `hsl(${hue}, ${saturation}%, ${lightness + 5}%)`,
+  ];
 }
 
 function hashCode(text: string) {

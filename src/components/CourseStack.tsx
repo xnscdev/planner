@@ -39,8 +39,7 @@ export default function CourseStack({
     return `${year}.${semester}`;
   }
 
-  function onDrop({ courseId, origin }: { courseId: string; origin: string }) {
-    console.log("accept drop", origin, year, semester, courseId);
+  function onDrop({ courseId }: { courseId: string; origin: string }) {
     courseAppend({ courseId: courseId });
   }
 
@@ -76,6 +75,7 @@ export default function CourseStack({
             <DragCourseCard
               key={`${id}${index}`}
               course={{ ...courseMap.get(courseId)!, id: courseId }}
+              courseMap={courseMap}
               origin={getOrigin()}
               useCount={0}
               editing={editing}

@@ -293,6 +293,7 @@ export default function EditPlanForm({
                         <DragCourseCard
                           key={course.id}
                           course={course}
+                          courseMap={courseMap}
                           origin="courses"
                           useCount={useCount.get(course.id) ?? 0}
                           editing={editing}

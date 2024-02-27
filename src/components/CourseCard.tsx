@@ -12,7 +12,7 @@ import {
   Wrap,
   WrapItem,
 } from "@chakra-ui/react";
-import { randomColor, randomCourseColor } from "../util/colors.ts";
+import { courseCardColor, tagColor } from "../util/colors.ts";
 import EditCourseForm from "./EditCourseForm.tsx";
 
 export default function CourseCard({
@@ -27,7 +27,7 @@ export default function CourseCard({
   update: () => void;
 }) {
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [bgColor, bgColorHover] = randomCourseColor(course.number);
+  const [bgColor, bgColorHover] = courseCardColor(course.number);
   return (
     <>
       <Card
@@ -67,7 +67,7 @@ export default function CourseCard({
             <Wrap>
               {course.tags.map((tag) => (
                 <WrapItem key={tag}>
-                  <Tag boxShadow="base" colorScheme={randomColor(tag)}>
+                  <Tag boxShadow="base" colorScheme={tagColor(tag)}>
                     {tag}
                   </Tag>
                 </WrapItem>

@@ -38,7 +38,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import React, { useState } from "react";
 import Course from "../models/Course.tsx";
 import { useDb } from "../providers/DatabaseProvider.tsx";
-import { randomColor } from "../util/colors.ts";
+import { tagColor } from "../util/colors.ts";
 import DeleteAlertDialog from "./DeleteAlertDialog.tsx";
 import { BiPlus, BiSave, BiTrash } from "react-icons/bi";
 import RequisiteCard from "./RequisiteCard.tsx";
@@ -264,10 +264,7 @@ export default function EditCourseForm({
                   <Wrap>
                     {tagFields.map((tag, index) => (
                       <WrapItem key={tag.id}>
-                        <Tag
-                          boxShadow="base"
-                          colorScheme={randomColor(tag.text)}
-                        >
+                        <Tag boxShadow="base" colorScheme={tagColor(tag.text)}>
                           <TagLabel>{tag.text}</TagLabel>
                           <TagCloseButton onClick={() => tagRemove(index)} />
                         </Tag>
