@@ -1,5 +1,9 @@
-export interface CourseRequisite {
+export interface CourseRef {
   courseId: string;
+}
+
+export interface CourseRequisite {
+  courses: CourseRef[];
   type: "pre" | "co" | "year";
   ignore: boolean;
   compare: "<=" | "=" | ">=";

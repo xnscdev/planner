@@ -1,6 +1,4 @@
-export interface CourseRef {
-  courseId: string;
-}
+import { CourseRef } from "./Course.tsx";
 
 export interface PlanYear {
   fall: CourseRef[];

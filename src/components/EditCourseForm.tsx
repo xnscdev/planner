@@ -1,9 +1,6 @@
 import {
   Button,
-  Card,
-  CardBody,
   Checkbox,
-  CloseButton,
   FormControl,
   FormErrorMessage,
   FormHelperText,
@@ -24,7 +21,6 @@ import {
   NumberInput,
   NumberInputField,
   NumberInputStepper,
-  Select,
   Spacer,
   Tag,
   TagCloseButton,
@@ -45,6 +41,7 @@ import { useDb } from "../providers/DatabaseProvider.tsx";
 import { randomColor } from "../util/colors.ts";
 import DeleteAlertDialog from "./DeleteAlertDialog.tsx";
 import { BiPlus, BiSave, BiTrash } from "react-icons/bi";
+import RequisiteCard from "./RequisiteCard.tsx";
 
 const EditCourseSchema = z
   .object({
@@ -65,7 +62,7 @@ const EditCourseSchema = z
     ),
     requisites: z.array(
       z.object({
-        courseId: z.string(),
+        courses: z.array(z.object({ courseId: z.string() })),
         type: z.union([z.literal("pre"), z.literal("co"), z.literal("year")]),
         ignore: z.boolean(),
         compare: z.union([z.literal("<="), z.literal("="), z.literal(">=")]),
@@ -78,12 +75,16 @@ const EditCourseSchema = z
     ),
   })
   .superRefine(({ requisites }, ctx) => {
-    requisites.forEach(({ type, courseId }, index) => {
-      if (type !== "year" && !courseId) {
-        ctx.addIssue({
-          path: ["requisites", index, "courseId"],
-          code: "custom",
-          message: "Please select a course",
+    requisites.forEach(({ type, courses }, index) => {
+      if (type !== "year") {
+        courses.forEach(({ courseId }, courseIndex) => {
+          if (!courseId) {
+            ctx.addIssue({
+              path: ["requisites", index, "courses", courseIndex, "courseId"],
+              code: "custom",
+              message: "Please select a course",
+            });
+          }
         });
       }
     });
@@ -113,14 +114,7 @@ export default function EditCourseForm({
     onClose: dialogOnClose,
   } = useDisclosure();
   const [tag, setTag] = useState("");
-  const {
-    handleSubmit,
-    register,
-    reset,
-    watch,
-    control,
-    formState: { errors, isSubmitting },
-  } = useForm<EditCourseData>({
+  const formReturn = useForm<EditCourseData>({
     resolver: zodResolver(EditCourseSchema),
     defaultValues: (() => {
       if (course) {
@@ -131,6 +125,13 @@ export default function EditCourseForm({
       }
     })(),
   });
+  const {
+    handleSubmit,
+    register,
+    reset,
+    control,
+    formState: { errors, isSubmitting },
+  } = formReturn;
   const {
     fields: tagFields,
     append: tagAppend,
@@ -282,7 +283,7 @@ export default function EditCourseForm({
                     <IconButton
                       onClick={() =>
                         requisiteAppend({
-                          courseId: "",
+                          courses: [{ courseId: "" }],
                           type: "pre",
                           ignore: false,
                           compare: "=",
@@ -299,101 +300,13 @@ export default function EditCourseForm({
                 </FormLabel>
                 <VStack spacing={4} align="stretch">
                   {requisiteFields.map((req, index) => (
-                    <Card key={req.id}>
-                      <CardBody>
-                        <HStack spacing={2}>
-                          <Select
-                            size="sm"
-                            variant="flushed"
-                            {...register(`requisites.${index}.type`)}
-                          >
-                            <option value="pre">Prerequisite</option>
-                            <option value="co">Corequisite</option>
-                            <option value="year">Year is</option>
-                          </Select>
-                          {watch(`requisites.${index}.type`) === "year" && (
-                            <>
-                              <Select
-                                size="sm"
-                                variant="flushed"
-                                {...register(`requisites.${index}.compare`)}
-                              >
-                                <option value="=">equal to</option>
-                                <option value=">=">at least</option>
-                                <option value="<=">at most</option>
-                              </Select>
-                              <Controller
-                                name={`requisites.${index}.year`}
-                                control={control}
-                                render={({ field: { ref, ...fields } }) => (
-                                  <NumberInput
-                                    min={1}
-                                    size="sm"
-                                    variant="flushed"
-                                    {...fields}
-                                  >
-                                    <NumberInputField ref={ref} />
-                                    <NumberInputStepper>
-                                      <NumberIncrementStepper />
-                                      <NumberDecrementStepper />
-                                    </NumberInputStepper>
-                                  </NumberInput>
-                                )}
-                              />
-                            </>
-                          )}
-                          <CloseButton
-                            onClick={() => requisiteRemove(index)}
-                            size="sm"
-                          />
-                        </HStack>
-                        {errors.requisites?.[index]?.year && (
-                          <Text color="red" fontSize="sm">
-                            {errors.requisites[index]!.year!.message}
-                          </Text>
-                        )}
-                        <VStack mt={4} spacing={3} align="stretch">
-                          {watch(`requisites.${index}.type`) !== "year" && (
-                            <>
-                              <Text fontSize="sm">
-                                One of the following courses:
-                              </Text>
-                              <Select
-                                size="sm"
-                                variant="flushed"
-                                {...register(`requisites.${index}.courseId`)}
-                              >
-                                <option value="">Select course&hellip;</option>
-                                {courses
-                                  .toSorted((a, b) =>
-                                    a.number.localeCompare(b.number),
-                                  )
-                                  .map(({ id, number }) => (
-                                    <option key={id} value={id}>
-                                      {number}
-                                    </option>
-                                  ))}
-                              </Select>
-                              {errors.requisites?.[index]?.courseId && (
-                                <Text color="red" fontSize="sm">
-                                  {errors.requisites[index]!.courseId!.message}
-                                </Text>
-                              )}
-                            </>
-                          )}
-                          {watch(`requisites.${index}.type`) === "co" && (
-                            <Checkbox
-                              {...register(`requisites.${index}.strict`)}
-                            >
-                              Strict corequisite
-                            </Checkbox>
-                          )}
-                          <Checkbox {...register(`requisites.${index}.ignore`)}>
-                            Ignore
-                          </Checkbox>
-                        </VStack>
-                      </CardBody>
-                    </Card>
+                    <RequisiteCard
+                      key={req.id}
+                      index={index}
+                      courses={courses}
+                      formReturn={formReturn}
+                      onDelete={() => requisiteRemove(index)}
+                    />
                   ))}
                 </VStack>
               </FormControl>
