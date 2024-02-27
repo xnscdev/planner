@@ -121,15 +121,15 @@ export function getRequisiteErrors(
         }
         break;
       case "year":
-        if (year + 1 !== req.year) {
-          errors.push(`Must be taken in year ${req.year}`);
+        if (!courseYearCorrect(year + 1, req.year, req.compare)) {
+          errors.push(`Cannot be taken in year ${year + 1}`);
         }
     }
   }
   return errors;
 }
 
-export function hasCourseBefore(
+function hasCourseBefore(
   fullPlan: PlanYear[],
   year: number,
   semester: "fall" | "spring" | "summer",
@@ -158,7 +158,7 @@ export function hasCourseBefore(
   return courses.some((course) => semesters.includes(course));
 }
 
-export function hasCourseConcurrent(
+function hasCourseConcurrent(
   fullPlan: PlanYear[],
   year: number,
   semester: "fall" | "spring" | "summer",
@@ -166,4 +166,19 @@ export function hasCourseConcurrent(
 ) {
   const courseIds = fullPlan[year][semester].map(({ courseId }) => courseId);
   return courses.some((course) => courseIds.includes(course));
+}
+
+function courseYearCorrect(
+  year: number,
+  requiredYear: number,
+  compare: "<=" | "=" | ">=",
+) {
+  switch (compare) {
+    case "<=":
+      return year <= requiredYear;
+    case "=":
+      return year === requiredYear;
+    case ">=":
+      return year >= requiredYear;
+  }
 }
