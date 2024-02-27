@@ -87,6 +87,7 @@ export default function EditPlanForm({
     handleSubmit,
     register,
     reset,
+    watch,
     control,
     formState: { errors },
   } = useForm<EditPlanData>({
@@ -175,6 +176,7 @@ export default function EditPlanForm({
     });
   }
 
+  const fullPlan = watch("years");
   const filteredCourses = sortAndFilterCourses(
     courses.filter(
       (course) => filterOptions.includes("used") || !useCount.get(course.id),
@@ -359,6 +361,7 @@ export default function EditPlanForm({
                   >
                     <CourseStack
                       courseMap={courseMap}
+                      fullPlan={fullPlan}
                       year={index}
                       semester="fall"
                       control={control}
@@ -366,6 +369,7 @@ export default function EditPlanForm({
                     />
                     <CourseStack
                       courseMap={courseMap}
+                      fullPlan={fullPlan}
                       year={index}
                       semester="spring"
                       control={control}
@@ -373,6 +377,7 @@ export default function EditPlanForm({
                     />
                     <CourseStack
                       courseMap={courseMap}
+                      fullPlan={fullPlan}
                       year={index}
                       semester="summer"
                       control={control}

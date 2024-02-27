@@ -1,4 +1,4 @@
-import Course from "../models/Course.tsx";
+import Course, { CourseRequisite } from "../models/Course.tsx";
 
 export function getSubject(number: string) {
   const match = number.match(/^[a-zA-Z]+/);
@@ -59,4 +59,14 @@ export function sortAndFilterCourses(
   return courses
     .toSorted((a, b) => sortCourses(a, b, sortCriteria, sortDirection))
     .filter((course) => filterCourse(course, filter, filterOptions));
+}
+
+export function formatCourseOptions(
+  { courses }: CourseRequisite,
+  courseMap: Map<string, Course>,
+) {
+  return courses
+    .map(({ courseId }) => courseMap.get(courseId)?.number)
+    .filter(Boolean)
+    .join(" or ");
 }

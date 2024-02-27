@@ -16,6 +16,7 @@ import {
 } from "@chakra-ui/react";
 import Course, { CourseRequisite } from "../models/Course.tsx";
 import { tagColor } from "../util/colors.ts";
+import { formatCourseOptions } from "../util/course.ts";
 
 export default function CoursePreviewDialog({
   isOpen,
@@ -105,10 +106,7 @@ function RequisitePreview({
       return (
         <Text>
           Corequisite{requisite.strict && " (strict)"}:{" "}
-          {requisite.courses
-            .map(({ courseId }) => courseMap.get(courseId)?.number)
-            .filter(Boolean)
-            .join(" or ")}
+          {formatCourseOptions(requisite, courseMap)}
         </Text>
       );
     case "year":

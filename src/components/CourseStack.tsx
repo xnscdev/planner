@@ -2,17 +2,19 @@ import { Flex, Heading, HStack, Text, VStack } from "@chakra-ui/react";
 import { useDrop } from "react-dnd";
 import Course from "../models/Course.tsx";
 import { Control, useFieldArray } from "react-hook-form";
-import Plan from "../models/Plan.tsx";
+import Plan, { PlanYear } from "../models/Plan.tsx";
 import DragCourseCard from "./DragCourseCard.tsx";
 
 export default function CourseStack({
   courseMap,
+  fullPlan,
   year,
   semester,
   control,
   editing,
 }: {
   courseMap: Map<string, Course>;
+  fullPlan: PlanYear[];
   year: number;
   semester: "fall" | "spring" | "summer";
   control: Control<Plan>;
@@ -76,6 +78,9 @@ export default function CourseStack({
               key={`${id}${index}`}
               course={{ ...courseMap.get(courseId)!, id: courseId }}
               courseMap={courseMap}
+              fullPlan={fullPlan}
+              year={year}
+              semester={semester}
               origin={getOrigin()}
               useCount={0}
               editing={editing}
