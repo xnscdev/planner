@@ -19,8 +19,9 @@ import {
 import { Controller, useFieldArray, UseFormReturn } from "react-hook-form";
 import Course from "../models/Course.tsx";
 import { BiPlus, BiX } from "react-icons/bi";
+import { TagData } from "../models/Tag.tsx";
 
-type FormType = Omit<Course, "tags"> & { tags: { text: string }[] };
+type FormType = Omit<Course, "tags"> & { tags: TagData[] };
 
 export default function RequisiteCard({
   index,
@@ -104,8 +105,8 @@ export default function RequisiteCard({
                   aria-label="Add Course Option"
                 />
               </HStack>
-              {courseFields.map((_, courseIndex) => (
-                <Box>
+              {courseFields.map(({ id }, courseIndex) => (
+                <Box key={id}>
                   <HStack spacing={2}>
                     <Select
                       size="sm"

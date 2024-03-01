@@ -3,7 +3,6 @@ import {
   Checkbox,
   FormControl,
   FormErrorMessage,
-  FormHelperText,
   FormLabel,
   HStack,
   Icon,
@@ -22,26 +21,22 @@ import {
   NumberInputField,
   NumberInputStepper,
   Spacer,
-  Tag,
-  TagCloseButton,
-  TagLabel,
   Text,
   Textarea,
   useDisclosure,
   VStack,
-  Wrap,
-  WrapItem,
 } from "@chakra-ui/react";
 import { z } from "zod";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import React, { useState } from "react";
 import Course from "../models/Course.tsx";
 import { useDb } from "../providers/DatabaseProvider.tsx";
-import { tagColor } from "../util/colors.ts";
 import DeleteAlertDialog from "./DeleteAlertDialog.tsx";
 import { BiPlus, BiSave, BiTrash } from "react-icons/bi";
 import RequisiteCard from "./RequisiteCard.tsx";
+import { TagData } from "../models/Tag.tsx";
+import { tagColor } from "../util/colors.ts";
+import { CreatableSelect, MultiValue } from "chakra-react-select";
 
 const EditCourseSchema = z
   .object({
@@ -57,7 +52,9 @@ const EditCourseSchema = z
     availableSummer: z.boolean(),
     tags: z.array(
       z.object({
-        text: z.string(),
+        label: z.string(),
+        value: z.string().min(1),
+        colorScheme: z.string(),
       }),
     ),
     requisites: z.array(
@@ -113,13 +110,19 @@ export default function EditCourseForm({
     onOpen: dialogOnOpen,
     onClose: dialogOnClose,
   } = useDisclosure();
-  const [tag, setTag] = useState("");
   const formReturn = useForm<EditCourseData>({
     resolver: zodResolver(EditCourseSchema),
     defaultValues: (() => {
       if (course) {
         const { tags, ...defaultCourse } = course;
-        return { tags: tags.map((tag) => ({ text: tag })), ...defaultCourse };
+        return {
+          tags: tags.map((tag) => ({
+            label: tag,
+            value: tag,
+            colorScheme: tagColor(tag),
+          })),
+          ...defaultCourse,
+        };
       } else {
         return { credits: 3, tags: [], requisites: [] };
       }
@@ -133,11 +136,6 @@ export default function EditCourseForm({
     formState: { errors, isSubmitting },
   } = formReturn;
   const {
-    fields: tagFields,
-    append: tagAppend,
-    remove: tagRemove,
-  } = useFieldArray({ control, name: "tags" });
-  const {
     fields: requisiteFields,
     append: requisiteAppend,
     remove: requisiteRemove,
@@ -146,7 +144,7 @@ export default function EditCourseForm({
   async function onSubmit(values: EditCourseData) {
     const { tags, ...data } = values;
     const newCourse: Course = {
-      tags: tags.map((tag) => tag.text),
+      tags: tags.map((tag) => tag.value),
       ...data,
     };
     if (course) {
@@ -168,32 +166,24 @@ export default function EditCourseForm({
   function resetForm() {
     if (course) {
       const { tags, ...courseFields } = course;
-      reset({ tags: tags.map((tag) => ({ text: tag })), ...courseFields });
+      reset({
+        tags: tags.map((tag) => ({
+          label: tag,
+          value: tag,
+          colorScheme: tagColor(tag),
+        })),
+        ...courseFields,
+      });
     }
   }
 
-  function onKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
-    if (event.key === "Enter" || event.key === " ") {
-      addTag();
-      event.preventDefault();
-    }
-  }
-
-  function onBlur(event: React.FocusEvent<HTMLInputElement>) {
-    addTag();
-    event.preventDefault();
-  }
-
-  function addTag() {
-    const name = tag.trim();
-    if (!name) {
-      return;
-    }
-
-    tagAppend({ text: name });
-    setTag("");
-  }
-
+  const existingTags = [
+    ...new Set(courses.flatMap((course) => course.tags)),
+  ].map((text) => ({
+    label: text,
+    value: text,
+    colorScheme: tagColor(text),
+  }));
   return (
     <Modal size={{ base: "full", sm: "md" }} isOpen={isOpen} onClose={onClose}>
       <ModalOverlay />
@@ -253,25 +243,33 @@ export default function EditCourseForm({
               </FormControl>
               <FormControl>
                 <FormLabel>Tags</FormLabel>
-                <Input
-                  type="text"
-                  value={tag}
-                  onChange={(event) => setTag(event.target.value)}
-                  onKeyDown={onKeyDown}
-                  onBlur={onBlur}
+                <Controller
+                  name="tags"
+                  control={control}
+                  render={({ field: { onChange, ...field } }) => {
+                    function replaceOnChange(newValue: MultiValue<TagData>) {
+                      const coloredValues = newValue.map((v) => ({
+                        ...v,
+                        colorScheme: tagColor(v.value),
+                      }));
+                      onChange(coloredValues);
+                    }
+
+                    return (
+                      <CreatableSelect
+                        isClearable={true}
+                        isMulti={true}
+                        isSearchable={true}
+                        options={existingTags}
+                        onChange={replaceOnChange}
+                        {...field}
+                      />
+                    );
+                  }}
                 />
-                <FormHelperText>
-                  <Wrap>
-                    {tagFields.map((tag, index) => (
-                      <WrapItem key={tag.id}>
-                        <Tag boxShadow="base" colorScheme={tagColor(tag.text)}>
-                          <TagLabel>{tag.text}</TagLabel>
-                          <TagCloseButton onClick={() => tagRemove(index)} />
-                        </Tag>
-                      </WrapItem>
-                    ))}
-                  </Wrap>
-                </FormHelperText>
+                <FormErrorMessage>
+                  {errors.tags && errors.tags.message}
+                </FormErrorMessage>
               </FormControl>
               <FormControl>
                 <FormLabel>

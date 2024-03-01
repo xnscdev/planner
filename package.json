@@ -16,6 +16,7 @@
     "@firebase/util": "^1.9.4",
     "@hookform/resolvers": "^3.3.4",
     "@types/murmurhash-js": "^1.0.6",
+    "chakra-react-select": "^4.7.6",
     "firebase": "^10.8.0",
     "framer-motion": "^11.0.5",
     "murmurhash-js": "^1.0.0",
