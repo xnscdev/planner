@@ -16,21 +16,21 @@ import CourseCard from "../components/CourseCard.tsx";
 import { getTagSet, sortAndFilterCourses } from "../util/course.ts";
 import { BiPlus } from "react-icons/bi";
 import { SortFilterControl } from "../components/SortFilterControl.tsx";
+import { useSortFilter } from "../util/hooks.ts";
 
 export default function CoursesPage() {
   const db = useDb();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [loading, setLoading] = useState(true);
   const [courses, setCourses] = useState<(Course & { id: string })[]>([]);
-  const [sortCriteria, setSortCriteria] = useState("subject");
-  const [sortDirection, setSortDirection] = useState("asc");
-  const [filter, setFilter] = useState("");
-  const [tagFilter, setTagFilter] = useState("");
-  const [filterOptions, setFilterOptions] = useState([
-    "fall",
-    "spring",
-    "summer",
-  ]);
+  const {
+    sortCriteria,
+    sortDirection,
+    filter,
+    tagFilter,
+    filterOptions,
+    fields: sortFields,
+  } = useSortFilter();
 
   function update() {
     setLoading(true);
@@ -67,16 +67,7 @@ export default function CoursesPage() {
           Add Course
         </Button>
         <SortFilterControl
-          sortCriteria={sortCriteria}
-          setSortCriteria={setSortCriteria}
-          sortDirection={sortDirection}
-          setSortDirection={setSortDirection}
-          filter={filter}
-          setFilter={setFilter}
-          tagFilter={tagFilter}
-          setTagFilter={setTagFilter}
-          filterOptions={filterOptions}
-          setFilterOptions={setFilterOptions}
+          {...sortFields}
           tags={existingTags}
           usedOption={false}
         />

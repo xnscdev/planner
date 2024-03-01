@@ -41,6 +41,7 @@ import {
 } from "react-icons/bi";
 import { SortFilterControl } from "./SortFilterControl.tsx";
 import DuplicateConfirmDialog from "./DuplicateConfirmDialog.tsx";
+import { useSortFilter } from "../util/hooks.ts";
 
 const EditPlanSchema = z.object({
   name: z.string().min(1, "Plan name is required"),
@@ -79,15 +80,6 @@ export default function EditPlanForm({
   } = useDisclosure();
   const [editing, setEditing] = useState(false);
   const [plan, setPlan] = useState(initialPlan);
-  const [sortCriteria, setSortCriteria] = useState("subject");
-  const [sortDirection, setSortDirection] = useState("asc");
-  const [filter, setFilter] = useState("");
-  const [tagFilter, setTagFilter] = useState("");
-  const [filterOptions, setFilterOptions] = useState([
-    "fall",
-    "spring",
-    "summer",
-  ]);
   const [numYears, setNumYears] = useState(initialPlan.years.length);
   const [selectedYear, setSelectedYear] = useState(0);
   const [useCount, setUseCount] = useState(buildUseCountMap(initialPlan));
@@ -119,6 +111,15 @@ export default function EditPlanForm({
     }),
     [],
   );
+  const {
+    sortCriteria,
+    sortDirection,
+    filter,
+    tagFilter,
+    filterOptions,
+    fields: sortFields,
+  } = useSortFilter();
+
   const courseMap = new Map<string, Course>(
     courses.map((course) => {
       const { id, ...courseFields } = course;
@@ -296,16 +297,7 @@ export default function EditPlanForm({
                 <Heading size="md">Find Courses</Heading>
                 <HStack>
                   <SortFilterControl
-                    sortCriteria={sortCriteria}
-                    setSortCriteria={setSortCriteria}
-                    sortDirection={sortDirection}
-                    setSortDirection={setSortDirection}
-                    filter={filter}
-                    setFilter={setFilter}
-                    tagFilter={tagFilter}
-                    setTagFilter={setTagFilter}
-                    filterOptions={filterOptions}
-                    setFilterOptions={setFilterOptions}
+                    {...sortFields}
                     tags={getTagSet(courses)}
                     usedOption={true}
                   />
