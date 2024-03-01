@@ -14,16 +14,19 @@ import {
 } from "@chakra-ui/react";
 import { courseCardColor, tagColor } from "../util/colors.ts";
 import EditCourseForm from "./EditCourseForm.tsx";
+import { TagData } from "../models/Tag.tsx";
 
 export default function CourseCard({
   id,
   course,
   courses,
+  tags,
   update,
 }: {
   id: string;
   course: Course;
   courses: (Course & { id: string })[];
+  tags: TagData[];
   update: () => void;
 }) {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -80,6 +83,7 @@ export default function CourseCard({
         id={id}
         course={course}
         courses={courses}
+        tags={tags}
         isOpen={isOpen}
         onClose={onClose}
         update={update}

@@ -101,6 +101,7 @@ export default function CoursesPage() {
                   id={id}
                   course={course}
                   courses={courses}
+                  tags={existingTags}
                   update={update}
                 />
               </WrapItem>
