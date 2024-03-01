@@ -1,5 +1,6 @@
 import Course, { CourseRef, CourseRequisite } from "../models/Course.tsx";
 import { PlanYear } from "../models/Plan.tsx";
+import { tagColor } from "./colors.ts";
 
 export function getSubject(number: string) {
   const match = number.match(/^[a-zA-Z]+/);
@@ -34,9 +35,15 @@ function sortCourse(
   return sortDirection === "dsc" ? -val : val;
 }
 
-function filterCourse(course: Course, filter: string, filterOptions: string[]) {
+function filterCourse(
+  course: Course,
+  filter: string,
+  tagFilter: string,
+  filterOptions: string[],
+) {
   const str = filter.toLowerCase();
   return (
+    (!tagFilter || course.tags.includes(tagFilter)) &&
     (course.number.toLowerCase().includes(str) ||
       course.title.toLowerCase().includes(str) ||
       course.description.toLowerCase().includes(str)) &&
@@ -61,10 +68,11 @@ export function sortAndFilterCourses(
   sortCriteria: string,
   sortDirection: string,
   filter: string,
+  tagFilter: string,
   filterOptions: string[],
 ) {
   return sortCourses(courses, sortCriteria, sortDirection).filter((course) =>
-    filterCourse(course, filter, filterOptions),
+    filterCourse(course, filter, tagFilter, filterOptions),
   );
 }
 
@@ -90,6 +98,14 @@ export function formatYearRequirement(
     case ">=":
       return `Must take during year ${year} or later`;
   }
+}
+
+export function getTagSet(courses: Course[]) {
+  return [...new Set(courses.flatMap((course) => course.tags))].map((text) => ({
+    label: text,
+    value: text,
+    colorScheme: tagColor(text),
+  }));
 }
 
 export function getRequisiteErrors(

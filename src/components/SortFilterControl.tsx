@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction } from "react";
+import { ChangeEvent, Dispatch, SetStateAction } from "react";
 import {
   Icon,
   IconButton,
@@ -6,11 +6,14 @@ import {
   Menu,
   MenuButton,
   MenuDivider,
+  MenuItem,
   MenuItemOption,
   MenuList,
   MenuOptionGroup,
+  Select,
 } from "@chakra-ui/react";
 import { BiFilterAlt } from "react-icons/bi";
+import { TagData } from "../models/Tag.tsx";
 
 export function SortFilterControl({
   sortCriteria,
@@ -19,8 +22,11 @@ export function SortFilterControl({
   setSortDirection,
   filter,
   setFilter,
+  tagFilter,
+  setTagFilter,
   filterOptions,
   setFilterOptions,
+  tags,
   usedOption,
 }: {
   sortCriteria: string;
@@ -29,8 +35,11 @@ export function SortFilterControl({
   setSortDirection: Dispatch<SetStateAction<string>>;
   filter: string;
   setFilter: Dispatch<SetStateAction<string>>;
+  tagFilter: string;
+  setTagFilter: Dispatch<SetStateAction<string>>;
   filterOptions: string[];
   setFilterOptions: Dispatch<SetStateAction<string[]>>;
+  tags: TagData[];
   usedOption: boolean;
 }) {
   return (
@@ -76,6 +85,24 @@ export function SortFilterControl({
               <MenuItemOption value="used">Show used courses</MenuItemOption>
             )}
           </MenuOptionGroup>
+          <MenuItem
+            as={Select}
+            variant="unstyled"
+            borderRadius={0}
+            value={tagFilter}
+            onChange={(event) =>
+              setTagFilter(
+                (event as ChangeEvent<HTMLInputElement>).target.value,
+              )
+            }
+          >
+            <option value="">Filter by tag&hellip;</option>
+            {tags.map((tag) => (
+              <option key={tag.value} value={tag.value}>
+                {tag.label}
+              </option>
+            ))}
+          </MenuItem>
         </MenuList>
       </Menu>
       <Input

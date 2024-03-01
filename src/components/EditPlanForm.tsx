@@ -24,7 +24,7 @@ import { useDb } from "../providers/DatabaseProvider.tsx";
 import { useState } from "react";
 import Course from "../models/Course.tsx";
 import DragCourseCard from "./DragCourseCard.tsx";
-import { sortAndFilterCourses } from "../util/course.ts";
+import { getTagSet, sortAndFilterCourses } from "../util/course.ts";
 import DeleteAlertDialog from "./DeleteAlertDialog.tsx";
 import { useNavigate } from "react-router-dom";
 import CourseStack from "./CourseStack.tsx";
@@ -81,12 +81,13 @@ export default function EditPlanForm({
   const [plan, setPlan] = useState(initialPlan);
   const [sortCriteria, setSortCriteria] = useState("subject");
   const [sortDirection, setSortDirection] = useState("asc");
+  const [filter, setFilter] = useState("");
+  const [tagFilter, setTagFilter] = useState("");
   const [filterOptions, setFilterOptions] = useState([
     "fall",
     "spring",
     "summer",
   ]);
-  const [filter, setFilter] = useState("");
   const [numYears, setNumYears] = useState(initialPlan.years.length);
   const [selectedYear, setSelectedYear] = useState(0);
   const [useCount, setUseCount] = useState(buildUseCountMap(initialPlan));
@@ -197,6 +198,7 @@ export default function EditPlanForm({
     sortCriteria,
     sortDirection,
     filter,
+    tagFilter,
     filterOptions,
   );
   return (
@@ -300,8 +302,11 @@ export default function EditPlanForm({
                     setSortDirection={setSortDirection}
                     filter={filter}
                     setFilter={setFilter}
+                    tagFilter={tagFilter}
+                    setTagFilter={setTagFilter}
                     filterOptions={filterOptions}
                     setFilterOptions={setFilterOptions}
+                    tags={getTagSet(courses)}
                     usedOption={true}
                   />
                 </HStack>

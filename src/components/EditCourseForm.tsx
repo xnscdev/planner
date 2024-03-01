@@ -93,6 +93,7 @@ export default function EditCourseForm({
   id,
   course,
   courses,
+  tags,
   isOpen,
   onClose,
   update,
@@ -100,6 +101,7 @@ export default function EditCourseForm({
   id?: string;
   course?: Course;
   courses: (Course & { id: string })[];
+  tags: TagData[];
   isOpen: boolean;
   onClose: () => void;
   update: () => void;
@@ -177,13 +179,6 @@ export default function EditCourseForm({
     }
   }
 
-  const existingTags = [
-    ...new Set(courses.flatMap((course) => course.tags)),
-  ].map((text) => ({
-    label: text,
-    value: text,
-    colorScheme: tagColor(text),
-  }));
   return (
     <Modal size={{ base: "full", sm: "md" }} isOpen={isOpen} onClose={onClose}>
       <ModalOverlay />
@@ -260,7 +255,7 @@ export default function EditCourseForm({
                         isClearable={true}
                         isMulti={true}
                         isSearchable={true}
-                        options={existingTags}
+                        options={tags}
                         onChange={replaceOnChange}
                         {...field}
                       />

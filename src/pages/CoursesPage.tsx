@@ -13,7 +13,7 @@ import { useDb } from "../providers/DatabaseProvider.tsx";
 import Course from "../models/Course.tsx";
 import { useEffect, useState } from "react";
 import CourseCard from "../components/CourseCard.tsx";
-import { sortAndFilterCourses } from "../util/course.ts";
+import { getTagSet, sortAndFilterCourses } from "../util/course.ts";
 import { BiPlus } from "react-icons/bi";
 import { SortFilterControl } from "../components/SortFilterControl.tsx";
 
@@ -24,12 +24,13 @@ export default function CoursesPage() {
   const [courses, setCourses] = useState<(Course & { id: string })[]>([]);
   const [sortCriteria, setSortCriteria] = useState("subject");
   const [sortDirection, setSortDirection] = useState("asc");
+  const [filter, setFilter] = useState("");
+  const [tagFilter, setTagFilter] = useState("");
   const [filterOptions, setFilterOptions] = useState([
     "fall",
     "spring",
     "summer",
   ]);
-  const [filter, setFilter] = useState("");
 
   function update() {
     setLoading(true);
@@ -49,8 +50,10 @@ export default function CoursesPage() {
     sortCriteria,
     sortDirection,
     filter,
+    tagFilter,
     filterOptions,
   );
+  const existingTags = getTagSet(courses);
   return (
     <Flex flexDir="column" align="stretch" h="100%" p={10}>
       <Heading size="lg">Manage Courses</Heading>
@@ -70,14 +73,18 @@ export default function CoursesPage() {
           setSortDirection={setSortDirection}
           filter={filter}
           setFilter={setFilter}
+          tagFilter={tagFilter}
+          setTagFilter={setTagFilter}
           filterOptions={filterOptions}
           setFilterOptions={setFilterOptions}
+          tags={existingTags}
           usedOption={false}
         />
       </HStack>
       <EditCourseForm
         isOpen={isOpen}
         courses={courses}
+        tags={existingTags}
         onClose={onClose}
         update={update}
       />
