@@ -14,11 +14,11 @@ export default function PlanPage() {
 
   useEffect(() => {
     if (!id) {
-      return navigate("/plans");
+      return navigate("/");
     }
     db.getPlan(id).then((plan) => {
       if (!plan) {
-        return navigate("/plans");
+        return navigate("/");
       }
       db.getAllCourses().then((courses) => {
         setCourses(courses);

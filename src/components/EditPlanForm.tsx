@@ -143,7 +143,7 @@ export default function EditPlanForm({
 
   async function deleteThis() {
     await db.deletePlan(id);
-    navigate("/plans");
+    navigate("/");
   }
 
   function buildUseCountMap(plan: Plan) {
@@ -188,7 +188,7 @@ export default function EditPlanForm({
   async function duplicate() {
     const newPlan = { ...plan, name: `Copy of ${plan.name}` };
     await db.createPlan(newPlan);
-    navigate("/plans");
+    navigate("/");
   }
 
   const fullPlan = watch("years");

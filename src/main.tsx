@@ -5,7 +5,6 @@ import { FirebaseOptions, initializeApp } from "firebase/app";
 import LogInPage from "./pages/LogInPage.tsx";
 import SignUpPage from "./pages/SignUpPage.tsx";
 import ProtectedRoute from "./routes/ProtectedRoute.tsx";
-import DashboardPage from "./pages/DashboardPage.tsx";
 import AuthRoute from "./routes/AuthRoute.tsx";
 import LogOutPage from "./pages/LogOutPage.tsx";
 import Providers from "./providers/Providers.tsx";
@@ -42,7 +41,7 @@ const router = createBrowserRouter([
         path: "/",
         element: (
           <ProtectedRoute>
-            <DashboardPage />
+            <PlansPage />
           </ProtectedRoute>
         ),
       },
@@ -51,14 +50,6 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute>
             <CoursesPage />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: "/plans",
-        element: (
-          <ProtectedRoute>
-            <PlansPage />
           </ProtectedRoute>
         ),
       },

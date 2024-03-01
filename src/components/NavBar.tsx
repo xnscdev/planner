@@ -80,9 +80,8 @@ function LoggedInControls() {
   return (
     <>
       <HStack spacing={8}>
-        <NavLink path="/">Dashboard</NavLink>
+        <NavLink path="/">Plans</NavLink>
         <NavLink path="/courses">Courses</NavLink>
-        <NavLink path="/plans">Plans</NavLink>
       </HStack>
       <Spacer />
       <ChakraLink as={ReactRouterLink} to="/logout">
@@ -95,9 +94,8 @@ function LoggedInControls() {
 function LoggedInMenu() {
   return (
     <>
-      <MenuLink path="/">Dashboard</MenuLink>
+      <MenuLink path="/">Plans</MenuLink>
       <MenuLink path="/courses">Courses</MenuLink>
-      <MenuLink path="/plans">Plans</MenuLink>
       <MenuDivider />
       <MenuLink path="/logout">Log out</MenuLink>
     </>
