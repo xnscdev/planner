@@ -71,21 +71,31 @@ const EditCourseSchema = z
       }),
     ),
   })
-  .superRefine(({ requisites }, ctx) => {
-    requisites.forEach(({ type, courses }, index) => {
-      if (type !== "year") {
-        courses.forEach(({ courseId }, courseIndex) => {
-          if (!courseId) {
-            ctx.addIssue({
-              path: ["requisites", index, "courses", courseIndex, "courseId"],
-              code: "custom",
-              message: "Please select a course",
-            });
-          }
+  .superRefine(
+    ({ availableFall, availableSpring, availableSummer, requisites }, ctx) => {
+      if (!availableFall && !availableSpring && !availableSummer) {
+        ctx.addIssue({
+          path: ["availableFall"],
+          code: "custom",
+          message: "Please select at least one semester of availability",
         });
       }
-    });
-  });
+
+      requisites.forEach(({ type, courses }, index) => {
+        if (type !== "year") {
+          courses.forEach(({ courseId }, courseIndex) => {
+            if (!courseId) {
+              ctx.addIssue({
+                path: ["requisites", index, "courses", courseIndex, "courseId"],
+                code: "custom",
+                message: "Please select a course",
+              });
+            }
+          });
+        }
+      });
+    },
+  );
 
 type EditCourseData = z.infer<typeof EditCourseSchema>;
 
@@ -228,13 +238,16 @@ export default function EditCourseForm({
                   {errors.credits && errors.credits.message}
                 </FormErrorMessage>
               </FormControl>
-              <FormControl>
+              <FormControl isInvalid={!!errors.availableFall}>
                 <FormLabel as="legend">Availability</FormLabel>
                 <HStack spacing={5}>
                   <Checkbox {...register("availableFall")}>Fall</Checkbox>
                   <Checkbox {...register("availableSpring")}>Spring</Checkbox>
                   <Checkbox {...register("availableSummer")}>Summer</Checkbox>
                 </HStack>
+                <FormErrorMessage>
+                  {errors.availableFall && errors.availableFall.message}
+                </FormErrorMessage>
               </FormControl>
               <FormControl>
                 <FormLabel>Tags</FormLabel>
