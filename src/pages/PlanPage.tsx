@@ -22,6 +22,12 @@ export default function PlanPage() {
       }
       db.getAllCourses().then((courses) => {
         setCourses(courses);
+        const ids = new Set<string>(courses.map(({ id }) => id));
+        for (const year of plan.years) {
+          year.fall = year.fall.filter(({ courseId }) => ids.has(courseId));
+          year.spring = year.spring.filter(({ courseId }) => ids.has(courseId));
+          year.summer = year.summer.filter(({ courseId }) => ids.has(courseId));
+        }
         setPlan(plan);
       });
     });
