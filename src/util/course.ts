@@ -101,11 +101,13 @@ export function formatYearRequirement(
 }
 
 export function getTagSet(courses: Course[]) {
-  return [...new Set(courses.flatMap((course) => course.tags))].map((text) => ({
-    label: text,
-    value: text,
-    colorScheme: tagColor(text),
-  }));
+  return [...new Set(courses.flatMap((course) => course.tags))]
+    .toSorted()
+    .map((text) => ({
+      label: text,
+      value: text,
+      colorScheme: tagColor(text),
+    }));
 }
 
 export function getRequisiteErrors(
