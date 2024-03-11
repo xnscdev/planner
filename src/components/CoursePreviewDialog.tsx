@@ -51,6 +51,7 @@ export default function CoursePreviewDialog({
                 ]
                   .filter(Boolean)
                   .join(", ")}
+                {course.ignoreAvailability && " (ignored)"}
               </Text>
             </Box>
             <Text>{course.description}</Text>

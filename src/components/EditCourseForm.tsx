@@ -50,6 +50,7 @@ const EditCourseSchema = z
     availableFall: z.boolean(),
     availableSpring: z.boolean(),
     availableSummer: z.boolean(),
+    ignoreAvailability: z.boolean(),
     tags: z.array(
       z.object({
         label: z.string(),
@@ -245,6 +246,7 @@ export default function EditCourseForm({
                   <Checkbox {...register("availableSpring")}>Spring</Checkbox>
                   <Checkbox {...register("availableSummer")}>Summer</Checkbox>
                 </HStack>
+                <Checkbox {...register("ignoreAvailability")}>Ignore</Checkbox>
                 <FormErrorMessage>
                   {errors.availableFall && errors.availableFall.message}
                 </FormErrorMessage>
@@ -339,6 +341,7 @@ export default function EditCourseForm({
                   ml={3}
                   colorScheme="blue"
                   leftIcon={<Icon boxSize={6} as={BiSave} />}
+                  isLoading={isSubmitting}
                   type="submit"
                 >
                   Save

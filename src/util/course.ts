@@ -119,6 +119,7 @@ export function getRequisiteErrors(
 ) {
   const errors: string[] = [];
   if (
+    !course.ignoreAvailability &&
     ![
       course.availableFall && "fall",
       course.availableSpring && "spring",

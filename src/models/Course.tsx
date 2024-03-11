@@ -18,6 +18,7 @@ export default interface Course {
   availableFall: boolean;
   availableSpring: boolean;
   availableSummer: boolean;
+  ignoreAvailability: boolean;
   description: string;
   tags: string[];
   requisites: CourseRequisite[];
